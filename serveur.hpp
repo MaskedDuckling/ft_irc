@@ -3,8 +3,10 @@
 
 #include <iostream>
 #include <cstdlib>
+#include <unistd.h> 
 #include <sys/socket.h>
 #include <netinet/in.h>
+
 /*A faire*/
 
 // Fonction d'assignation
