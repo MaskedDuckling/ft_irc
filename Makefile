@@ -5,7 +5,8 @@ CC = c++
 CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 
 SRC =	main.cpp \
-		serveur.cpp
+		serveur.cpp \
+		user.cpp
 
 INC = serveur.hpp
 

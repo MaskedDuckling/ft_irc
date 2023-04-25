@@ -8,7 +8,10 @@
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <poll.h>
+#include <fcntl.h>
 #include <vector>
+#include <string.h>
+#include"user.hpp"
 
 /*A faire*/
 
@@ -17,11 +20,12 @@
 
 class serveur{
     private:
-        std::vector<pollfd> _pollfds; 
-        int			_port;
-        std::string	_password;
-        int         _main_socket;
-        sockaddr_in _adress;
+        std::vector<pollfd> _pollfds;
+        std::vector<user *>   _users;
+        int			        _port;
+        std::string	        _password;
+        int                 _main_socket;
+        sockaddr_in         _adress;
 
     public:
 

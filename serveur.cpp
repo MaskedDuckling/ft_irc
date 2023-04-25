@@ -13,49 +13,70 @@ serveur::serveur(const serveur & rhs){
 }
 
 serveur::~serveur(){
+    close(_main_socket);
+    shutdown(_main_socket, SHUT_RDWR);
 }
 
 /*          Fonctions Membres           */
 
 int serveur::init(){
+    //Create main socket fd
     _main_socket = socket(AF_INET, SOCK_STREAM, 0);
     if (_main_socket == -1)
 		return erroring ("Failed to create socket");
+
+    //Set socket as reusable and non-blocking
+    int on = 1;
+    if (setsockopt(_main_socket, SOL_SOCKET,  SO_REUSEADDR, (char *)&on, sizeof(on)) < 0)
+        erroring("Failed setsockopt()");
+    if (fcntl(_main_socket, F_SETFL, O_NONBLOCK) < 0)
+		erroring("Failed fcntl()");
+
+    //Init _adress structure
 	sockaddr_in _adress;
 	_adress.sin_family = AF_INET;
 	_adress.sin_addr.s_addr = INADDR_ANY;
 	_adress.sin_port = htons(_port);
+    memset(&(_adress.sin_zero), '\0', 8);
 
+    //Connect socket to _adress and _port
 	if (bind(_main_socket, (struct sockaddr*)&_adress, sizeof(_adress)) < 0)
 		return erroring("Failed bind to port");
-	
+
+    //Wait for connection
 	if (listen(_main_socket, 10) < 0)
 		return erroring("Failed to listen on socket");
-    return loop();
+
+    //Put main socket in _pollfds
+    _pollfds.push_back(createfd(_main_socket));
+    return 0;
 }
 
 int serveur::loop(){
     int addrlen = sizeof(_adress);
-	_pollfds.push_back(createfd(accept(_main_socket, (struct sockaddr*)&_adress, (socklen_t*)&addrlen)));
-    int ret = poll(_pollfds[0], 2, 500);
-    while (ret > 0)
-	{
-        char buffer[100];
-        int bytesRead = read(connection, buffer, 100);
-        (void)bytesRead;
-        std::cout << "The message was: " << buffer;
+    char buff[1024];
+    int lu = 0;
+    std::string message;
 
-        std::string response = "Good talking to you\n";
-        send(connection, response.c_str(), response.size(), 0);
-	    close(connection);
+    poll(&_pollfds[0], _pollfds.size(), 500);
+    if (_pollfds[0].revents == POLLIN){
+	    _pollfds.push_back(createfd(accept(_main_socket, (struct sockaddr*)&_adress, (socklen_t*)&addrlen)));
+        _users.push_back(new user(_pollfds.back().fd));
     }
-    if (connection < 0) {
-        return erroring("Failed to grab connection");
-    }
+    else
+    {
+        for (std::vector<pollfd>::iterator it = _pollfds.begin()+1 ; it != _pollfds.end() ; it++)
+        {
+            if (it->revents == POLLIN){
+                lu = read(it->fd, buff, 1024);
+                std::cout << lu << std::endl;
+                buff[lu] = '\0';
+                message = std::string(buff);
 
-	// Close the connections
-	close(_main_socket);
-	shutdown(_main_socket, SHUT_RDWR);
+                std::cout << "The message was: " << message;
+            }
+        }
+    }
     return 1;
 }
 
@@ -74,6 +95,7 @@ pollfd serveur::createfd(int fd){
     ret.fd = fd;
     ret.events = POLLIN;
     ret.revents = POLLOUT;
+    return (ret);
 }
 
 int serveur::getport(){
