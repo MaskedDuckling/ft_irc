@@ -21,7 +21,8 @@
 class serveur{
     private:
         std::vector<pollfd> _pollfds;
-        std::vector<user *>   _users;
+        std::vector<user *> _users;
+        int                 _nbUser;
         int			        _port;
         std::string	        _password;
         int                 _main_socket;

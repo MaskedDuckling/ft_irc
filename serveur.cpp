@@ -6,6 +6,7 @@ serveur::serveur(): _port(0), _password(NULL){
 }
 
 serveur::serveur(int port, std::string password): _port(port), _password(password){
+    _nbUser = 0;
 }
 
 serveur::serveur(const serveur & rhs){
@@ -60,9 +61,9 @@ void    serveur::addUser(){
     int new_fd = accept(_pollfds[0].fd, (struct sockaddr *)&new_address, &sin_size);
 	if (new_fd == -1)
 		return;
-	
 	/* Creation du user */
-	_users[new_fd] = new user(new_fd, new_address);
+	_users.push_back(new user(new_fd, new_address));
+    _nbUser++;
 
 	/* Maj de _pollfds */
 	_pollfds.push_back(pollfd());
