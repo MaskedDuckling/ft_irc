@@ -25,7 +25,7 @@ class serveur{
         int			        _port;
         std::string	        _password;
         int                 _main_socket;
-        sockaddr_in         _adress;
+        sockaddr_in         _address;
 
     public:
 
@@ -40,6 +40,7 @@ class serveur{
 
         int init();
         int loop();
+        void addUser();
         
 
     /*          Operateurs          */
@@ -51,7 +52,7 @@ class serveur{
         int         getport();
         std::string	getpassword();
         int         getmain_socket();
-        sockaddr_in getadress();
+        sockaddr_in getaddress();
 
         pollfd      createfd(int fd);
 
