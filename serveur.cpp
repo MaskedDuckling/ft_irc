@@ -62,7 +62,7 @@ void    serveur::addUser(){
 	if (new_fd == -1)
 		return;
 	/* Creation du user */
-	_users.push_back(new user(new_fd, new_address));
+	_users[new_fd] = new user(new_fd, new_address);
     _nbUser++;
 
 	/* Maj de _pollfds */
@@ -85,10 +85,9 @@ int serveur::loop(){
         {
             if (it->revents == POLLIN){
                 lu = read(it->fd, buff, 1024);
-                std::cout << lu << std::endl;
                 buff[lu] = '\0';
                 message = std::string(buff);
-                std::cout << "The message was: " << message;
+                _users[it->fd]->parse(message);
             }
         }
     }

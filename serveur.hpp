@@ -10,6 +10,7 @@
 #include <poll.h>
 #include <fcntl.h>
 #include <vector>
+#include <map>
 #include <string.h>
 #include"user.hpp"
 
@@ -21,7 +22,7 @@
 class serveur{
     private:
         std::vector<pollfd> _pollfds;
-        std::vector<user *> _users;
+        std::map<int, user *> _users;
         int                 _nbUser;
         int			        _port;
         std::string	        _password;

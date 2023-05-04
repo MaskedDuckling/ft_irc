@@ -23,6 +23,8 @@ class user{
         user();
         user(int fd, sockaddr_in address);
         ~user();
+
+        void parse(std::string message);
 };
 
 #endif
