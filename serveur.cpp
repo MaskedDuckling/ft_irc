@@ -85,9 +85,9 @@ int serveur::loop(){
         {
             if (it->revents == POLLIN){
                 lu = read(it->fd, buff, 1024);
-                buff[lu] = '\0';
+                buff[lu+1] = '\0';
                 message = std::string(buff);
-                _users[it->fd]->parse(message);
+                _users[it->fd]->parse_commands(message);
             }
         }
     }

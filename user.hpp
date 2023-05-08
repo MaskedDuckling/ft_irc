@@ -24,7 +24,9 @@ class user{
         user(int fd, sockaddr_in address);
         ~user();
 
-        void parse(std::string message);
+        void parse_commands(std::string message);
+        void parse_command(std::string command);
+        void execute(std::vector<std::string> split_command);
 };
 
 #endif
