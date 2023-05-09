@@ -62,7 +62,8 @@ void    serveur::addUser(){
 	if (new_fd == -1)
 		return;
 	/* Creation du user */
-	_users[new_fd] = new user(new_fd, new_address);
+    // std::cout << new_fd << new_address.sin_port << std::endl;
+	_users[new_fd] = new user(new_fd, new_address, this);
     _nbUser++;
 
 	/* Maj de _pollfds */
@@ -73,7 +74,7 @@ void    serveur::addUser(){
 
 int serveur::loop(){
     char buff[1024];
-    int lu = 0;
+    size_t lu = 0;
     std::string message;
 
     poll(&_pollfds[0], _pollfds.size(), 500);
@@ -85,7 +86,7 @@ int serveur::loop(){
         {
             if (it->revents == POLLIN){
                 lu = read(it->fd, buff, 1024);
-                buff[lu+1] = '\0';
+                buff[lu] = '\0';
                 message = std::string(buff);
                 _users[it->fd]->parse_commands(message);
             }

@@ -12,24 +12,30 @@
 #include <vector>
 #include <map>
 #include <string.h>
-#include"user.hpp"
+#include "user.hpp"
+#include "channel.hpp"
 
+// class user;
 /*A faire*/
 
 // Fonction d'assignation
 // Remttre en prive
 
+class channel;
+
 class serveur{
     private:
+    public:
         std::vector<pollfd> _pollfds;
         std::map<int, user *> _users;
+        std::map<std::string, channel *>  _channels;
+
         int                 _nbUser;
         int			        _port;
         std::string	        _password;
         int                 _main_socket;
         sockaddr_in         _address;
 
-    public:
 
     /*          Constructeurs && Destructeurs           */
 

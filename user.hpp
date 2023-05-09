@@ -11,22 +11,29 @@
 #include <fcntl.h>
 #include <vector>
 #include <string.h>
+#include "command.hpp"
+#include "serveur.hpp"
+
+class command;
+class serveur;
 
 class user{
     private:
+    public:
         std::string _realname;
         std::string _nick;
         sockaddr_in _address;
         int _fd;
-        
-    public:
+        serveur *_serv;
+        int _mode;
+
+
         user();
-        user(int fd, sockaddr_in address);
+        user(int fd, sockaddr_in address, serveur *serv);
         ~user();
 
         void parse_commands(std::string message);
-        void parse_command(std::string command);
-        void execute(std::vector<std::string> split_command);
+
 };
 
 #endif

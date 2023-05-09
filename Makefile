@@ -6,9 +6,14 @@ CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
 
 SRC =	main.cpp \
 		serveur.cpp \
-		user.cpp
+		user.cpp \
+		channel.cpp \
+		command.cpp
 
-INC = serveur.hpp
+INC = serveur.hpp \
+		user.hpp \
+		channel.hpp \
+		command.hpp
 
 OBJ = $(SRC:.cpp=.o)
 
