@@ -17,6 +17,7 @@ class channel{
         ~channel();
 
         void broadcast(std::string response);
+        void add_user(user *user);
 };
 
 #endif

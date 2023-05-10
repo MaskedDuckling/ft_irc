@@ -52,7 +52,9 @@ void command::execute(){
         exit(0);
     }
     else if (_command[0] == "JOIN"){
-        // if (_user->_serv->_channels.find(_command[1]) == _user->_serv->_channels.end())        /*pas la bonne condition a change*/
+        if (_user->_serv->_channels[_command[1]])
+            _user->_serv->_channels[_command[1]]->add_user(_user);
+        else
             _user->_serv->_channels[_command[1]] = new channel(_command[1], _user);
     }
     else{
@@ -61,11 +63,7 @@ void command::execute(){
             response += *it + " ";
         response += "\n";
         _user->_channel->broadcast(response);
-        send(_user->_fd, response.c_str(), response.size(), 0);
     }
-    // else if (_command[0] == "PRINT"){
-    //     std::cout << "User::nick = " << _user->_nick << "  User::realname = " << _user->_realname << std::endl;
-    // }
 }
 
 std::ostream &operator<<(std::ostream &o, command &rhs){                                                                    /*FAIT BUGGER L'AFFICHAGE*/

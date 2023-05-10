@@ -4,11 +4,15 @@ channel::channel(){
 }
 
 channel::channel(std::string name, user *user):_name(name){
-    _users.push_back(user);
-    _users.back()->_channel = this;
+    add_user(user);
 }
 
 channel::~channel(){
+}
+
+void channel::add_user(user *user){
+    _users.push_back(user);
+    _users.back()->_channel = this;
 }
 
 void channel::broadcast(std::string response){
