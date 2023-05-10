@@ -15,6 +15,7 @@
 #include "user.hpp"
 #include "channel.hpp"
 
+#define BUFF_SIZE 1024
 // class user;
 /*A faire*/
 
@@ -49,7 +50,7 @@ class serveur{
         int init();
         int loop();
         void addUser();
-        
+        void delUser(std::vector<pollfd>::iterator it);
 
     /*          Operateurs          */
 

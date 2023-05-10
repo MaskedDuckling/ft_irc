@@ -13,9 +13,11 @@
 #include <string.h>
 #include "command.hpp"
 #include "serveur.hpp"
+#include "channel.hpp"
 
 class command;
 class serveur;
+class channel;
 
 class user{
     private:
@@ -23,9 +25,11 @@ class user{
         std::string _realname;
         std::string _nick;
         sockaddr_in _address;
+        std::vector<command *> _commands;
         int _fd;
         serveur *_serv;
         int _mode;
+        channel *_channel;
 
 
         user();
@@ -33,6 +37,7 @@ class user{
         ~user();
 
         void parse_commands(std::string message);
+        void execute_commands();
 
 };
 
