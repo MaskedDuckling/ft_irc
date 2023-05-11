@@ -5,7 +5,7 @@
 serveur::serveur(): _port(0), _password(NULL){
 }
 
-serveur::serveur(int port, std::string password): _port(port), _password(password){
+serveur::serveur(int port, std::string password): _port(port), _password(password), _name("MyIRC"){
     _nbUser = 0;
 }
 
@@ -139,7 +139,7 @@ sockaddr_in serveur::getaddress(){
 }
 
 void    serveur::affichage(){
-    std::cout << "My_serv" << std::endl;
+    std::cout << _name << std::endl;
     std::cout << "Port : "<< this->_port << " \nPass : " << this->_password << std::endl;
 }
 

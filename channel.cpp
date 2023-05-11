@@ -20,3 +20,12 @@ void channel::broadcast(std::string response){
     for (std::vector <user *>::iterator it = _users.begin(); it != _users.end(); it++)
         send((*it)->_fd, response.c_str(), response.size(), 0);
 }
+
+void channel::list_users(){
+    int users = 0;
+    for (std::vector<user *>::iterator it = _users.begin(); it != _users.end(); it++){
+        std::cout << (*it)->_nick << std::endl;
+        users++;
+    }
+    std::cout << users << " users in channel " << std::endl;
+}

@@ -36,6 +36,7 @@ class serveur{
         std::string	        _password;
         int                 _main_socket;
         sockaddr_in         _address;
+        std::string        _name;
 
 
     /*          Constructeurs && Destructeurs           */

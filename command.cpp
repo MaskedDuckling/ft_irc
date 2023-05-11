@@ -17,21 +17,12 @@ command::command(std::string message, user *user):_user(user){
     }
 }
 
-void command::execute(){
+void command::execute(){                                                                /*A refaire entieremment*/
     if (!_command.size()){
         std::cout << "No command to execute" << std::endl;
         return ;
     }
     std::cout << "Executing command : {" << *this <<"}"<< std::endl;
-    std::cout << _command[0] << std::endl;
-    // if (_user->_mode == 0){
-    //     if (_command[0] != "NICK" && _command[0] != "USER" && _command[0] != "CAP" && _command[0] != "PASS" && _command[0] != "QUIT"){
-    //         std::cout << "User not registered still need to set : " << (_user->_nick == "" ? "NICK " : "") << (_user->_realname == "" ? "USER " : "") << (_user->_mode == 0 ? "PASS " : "") << std::endl;
-    //         return ;
-    //     }
-    //     if (_command[0] == "CAP")
-    //         return ;
-    // }
     if (_command[0] == "PASS"){
         if (_command[1] != _user->_serv->_password){
             std::cout << "Wrong password [" << _command[1] << "]"<< std::endl;
@@ -47,6 +38,9 @@ void command::execute(){
     }
     else if (_command[0] == "USER"){
         _user->_realname = _command[1];
+        std::string rep("001 Welcome to the Internet Relay Network ");
+        rep +=_user->_nick + "!" + _user->_realname + "@" + _user->_serv->_name + "\n";
+        send(_user->_fd, rep.c_str(), rep.size(), 0);
     }
     else if (_command[0] == "QUIT"){
         _user->~user();
@@ -57,7 +51,10 @@ void command::execute(){
         else
             _user->_serv->_channels[_command[1]] = new channel(_command[1], _user);
     }
-    else if (_user->_mode == 2){
+    else if (_command[0] == "MODE"){
+        return;
+    }
+    else if (_user->_mode == 2 || _command[0] == "PRIVMSG"){
         std::string response = _user->_nick + " : ";
         for (std::vector<std::string>::iterator it = _command.begin(); it != _command.end(); it++)
             response += *it + " ";
