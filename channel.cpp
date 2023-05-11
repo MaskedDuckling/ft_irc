@@ -12,6 +12,7 @@ channel::~channel(){
 
 void channel::add_user(user *user){
     _users.push_back(user);
+    _users.back()->_mode = 2;
     _users.back()->_channel = this;
 }
 

@@ -62,7 +62,6 @@ void    serveur::addUser(){
 	if (new_fd == -1)
 		return;
 	/* Creation du user */
-    // std::cout << new_fd << new_address.sin_port << std::endl;
 	_users[new_fd] = new user(new_fd, new_address, this);
     _nbUser++;
 
@@ -72,12 +71,12 @@ void    serveur::addUser(){
 	_pollfds.back().events = POLLIN;
 }
 
-void serveur::delUser(std::vector<pollfd>::iterator it){
-    _users[it->fd]->~user();
+int serveur::delUser(std::vector<pollfd>::iterator it){
+    _users[it->fd]->_commands.clear();
     _pollfds.erase(it);
     _users.erase(it->fd);
     _nbUser--;
-    return ;
+    return 0;
 }
 
 int serveur::loop(){
@@ -94,8 +93,8 @@ int serveur::loop(){
         {
             if (it->revents == POLLIN){
                 lu = recv(it->fd, buff, BUFF_SIZE, 0);
-                if (!lu)
-                    delUser(it);
+                if (lu==0)
+                    return delUser(it);
                 buff[lu] = '\0';
                 message = std::string(buff);
                 _users[it->fd]->parse_commands(message);

@@ -9,13 +9,14 @@ user::user(int fd, sockaddr_in address, serveur *serv):_address(address), _fd(fd
 }
 
 user::~user(){
+    _serv->delUser(_serv->_pollfds.begin()+_fd);
 }
 
 void user::parse_commands(std::string message){
-    while (message.find("\n") != std::string::npos)
+    while (message.find("\r\n") != std::string::npos)
     {
-        _commands.push_back(new command(message.substr(0, message.find("\n")), this));
-        message = message.substr(message.find("\n")+1);
+        _commands.push_back(new command(message.substr(0, message.find("\r\n")), this));
+        message = message.substr(message.find("\r\n")+2);
     }
     if (message.size() > 0)
         _commands.push_back(new command(message, this));

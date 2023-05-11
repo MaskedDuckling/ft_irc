@@ -50,7 +50,7 @@ class serveur{
         int init();
         int loop();
         void addUser();
-        void delUser(std::vector<pollfd>::iterator it);
+        int delUser(std::vector<pollfd>::iterator it);
 
     /*          Operateurs          */
 
