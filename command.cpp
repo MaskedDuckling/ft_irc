@@ -33,13 +33,20 @@ void command::execute(){
         std::cout << "Command not found" << std::endl;
 }
 
-std::ostream &operator<<(std::ostream &o, command &rhs){
-    for(std::vector<std::string>::iterator it = rhs._command.begin(); it != rhs._command.end(); it++){
-        o << *it;
-        if (it != rhs._command.end()-1)
-            std::cout << " ";
+void command::display_reply(std::string reply, ...){        /*Probablement erreur ici*/
+    std::string message;
+    va_list arg_list;
+    va_start(arg_list,reply);
+    for (std::string::iterator it = reply.begin() ; it != reply.end(); it++){
+        if (*it!='<')
+            message += *it;
+        else{
+            while (it != reply.end() && *it != '>')
+                it++;
+            message += va_arg(arg_list, char *);
+        }
     }
-    return (o);
+    std::cout << "Reply: " << message << std::endl;
 }
 
 void command::init_func_map(){
@@ -51,24 +58,6 @@ void command::init_func_map(){
     _map_fonction.insert(std::make_pair("MODE",&command::MODE));
     _map_fonction.insert(std::make_pair("PART",&command::PART));
     _map_fonction.insert(std::make_pair("QUIT",&command::QUIT));
-
-}
-
-void command::display_reply(std::string reply, ...){        /*Probablement erreur ici*/
-    std::string message;
-    va_list arg_list;
-    va_start(arg_list,reply);
-    for (std::string::iterator it = reply.begin() ; it != reply.end(); it++){
-        if (*it == '<'){
-            while (it != reply.end() && *it != '>')
-                it++;
-            message += va_arg(arg_list, char *);
-            it++;
-        }
-        message += *it;
-        std::cout << message << std::endl;
-    }
-    std::cout << "Reply: " << message << std::endl;
 }
 
 void command::PASS(){
@@ -101,3 +90,12 @@ void command::OPER(){}
 void command::MODE(){}
 void command::PART(){}
 void command::QUIT(){}
+
+std::ostream &operator<<(std::ostream &o, command &rhs){
+    for(std::vector<std::string>::iterator it = rhs._command.begin(); it != rhs._command.end(); it++){
+        o << *it;
+        if (it != rhs._command.end()-1)
+            std::cout << " ";
+    }
+    return (o);
+}
