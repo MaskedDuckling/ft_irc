@@ -1,5 +1,7 @@
 #include "command.hpp"
 
+std::map<std::string, void (command::*)()> command::_map_fonction;
+
 command::command(){
 }
 command::~command(){
@@ -17,53 +19,21 @@ command::command(std::string message, user *user):_user(user){
     }
 }
 
-void command::execute(){                                                                /*A refaire entieremment*/
+void command::execute(){
+    init_func_map();
     if (!_command.size()){
         std::cout << "No command to execute" << std::endl;
         return ;
     }
-    std::cout << "Executing command : {" << *this <<"}"<< std::endl;
-    if (_command[0] == "PASS"){
-        if (_command[1] != _user->_serv->_password){
-            std::cout << "Wrong password [" << _command[1] << "]"<< std::endl;
-            return ;
-        }
-        if (_user->_nick=="" || _user->_realname=="")
-            return ;
-        std::cout << "User registered : " << _user->_nick << std::endl;
-        _user->_mode = 1;
-    }
-    else if (_command[0] == "NICK"){
-        _user->_nick = _command[1];
-    }
-    else if (_command[0] == "USER"){
-        _user->_realname = _command[1];
-        std::string rep("001 Welcome to the Internet Relay Network ");
-        rep +=_user->_nick + "!" + _user->_realname + "@" + _user->_serv->_name + "\n";
-        send(_user->_fd, rep.c_str(), rep.size(), 0);
-    }
-    else if (_command[0] == "QUIT"){
-        _user->~user();
-    }
-    else if (_command[0] == "JOIN"){
-        if (_user->_serv->_channels[_command[1]])
-            _user->_serv->_channels[_command[1]]->add_user(_user);
-        else
-            _user->_serv->_channels[_command[1]] = new channel(_command[1], _user);
-    }
-    else if (_command[0] == "MODE"){
-        return;
-    }
-    else if (_user->_mode == 2 || _command[0] == "PRIVMSG"){
-        std::string response = _user->_nick + " : ";
-        for (std::vector<std::string>::iterator it = _command.begin(); it != _command.end(); it++)
-            response += *it + " ";
-        response += "\n";
-        _user->_channel->broadcast(response);
-    }
+    std::cout << "Executing command: " << *this << std::endl;
+
+    if (_map_fonction.find(_command[0]) != _map_fonction.end())
+            (this->*_map_fonction[_command[0]])();
+    else
+        std::cout << "Command not found" << std::endl;
 }
 
-std::ostream &operator<<(std::ostream &o, command &rhs){                                                                    /*FAIT BUGGER L'AFFICHAGE*/
+std::ostream &operator<<(std::ostream &o, command &rhs){
     for(std::vector<std::string>::iterator it = rhs._command.begin(); it != rhs._command.end(); it++){
         o << *it;
         if (it != rhs._command.end()-1)
@@ -71,3 +41,63 @@ std::ostream &operator<<(std::ostream &o, command &rhs){                        
     }
     return (o);
 }
+
+void command::init_func_map(){
+    _map_fonction.insert(std::make_pair("PASS",&command::PASS));
+    _map_fonction.insert(std::make_pair("USER",&command::USER));
+    _map_fonction.insert(std::make_pair("NICK",&command::NICK));
+    _map_fonction.insert(std::make_pair("JOIN",&command::JOIN));
+    _map_fonction.insert(std::make_pair("OPER",&command::OPER));
+    _map_fonction.insert(std::make_pair("MODE",&command::MODE));
+    _map_fonction.insert(std::make_pair("PART",&command::PART));
+    _map_fonction.insert(std::make_pair("QUIT",&command::QUIT));
+
+}
+
+void command::display_reply(std::string reply, ...){        /*Probablement erreur ici*/
+    std::string message;
+    va_list arg_list;
+    va_start(arg_list,reply);
+    for (std::string::iterator it = reply.begin() ; it != reply.end(); it++){
+        if (*it == '<'){
+            while (it != reply.end() && *it != '>')
+                it++;
+            message += va_arg(arg_list, char *);
+            it++;
+        }
+        message += *it;
+        std::cout << message << std::endl;
+    }
+    std::cout << "Reply: " << message << std::endl;
+}
+
+void command::PASS(){
+    if (_command.size() < 2)
+        display_reply(ERR_NEEDMOREPARAMS, "PASS");
+    else if (_user->_mode == 1){
+        display_reply(ERR_ALREADYREGISTRED);
+    }
+    else if (_command[1] == _user->_serv->_password && _user->_nick.size() > 0 && _user->_realname.size() > 0){
+        _user->_mode = 1;
+        display_reply(RPL_WELCOME, _user->_nick.c_str(), _user->_realname.c_str(), _user->_serv->_name.c_str());
+    }
+}
+void command::USER(){
+    if (_command.size() < 5){
+        display_reply(ERR_NEEDMOREPARAMS, "USER");
+        return ;    
+    }
+    _user->_realname = _command[4];
+}
+void command::NICK(){
+    if (_command.size() < 2){
+        display_reply(ERR_NONICKNAMEGIVEN);
+        return ;
+    }
+    _user->_nick = _command[1];
+}
+void command::JOIN(){}
+void command::OPER(){}
+void command::MODE(){}
+void command::PART(){}
+void command::QUIT(){}

@@ -13,7 +13,8 @@ SRC =	main.cpp \
 INC = serveur.hpp \
 		user.hpp \
 		channel.hpp \
-		command.hpp
+		command.hpp \
+		replies.hpp
 
 OBJ = $(SRC:.cpp=.o)
 

@@ -3,22 +3,38 @@
 
 #include <vector>
 #include <iostream>
+#include <map>
+#include "replies.hpp"
 #include "user.hpp"
 
 class user;
 
 class command{
+    static std::map<std::string, void (command::*)()> _map_fonction;
     // private:
     public:
         std::vector<std::string> _command;
         user *_user;
         
+
         command();
         command(std::string message, user *user);
         ~command();
 
         command &operator=(command const & rhs);
+        
+        static void init_func_map();
 
+        void PASS();
+        void USER();
+        void NICK();
+        void JOIN();
+        void OPER();
+        void MODE();
+        void PART();
+        void QUIT();
+
+        void display_reply(std::string reply,...);
         void execute();
 };
 
