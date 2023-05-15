@@ -3,13 +3,29 @@
 user::user(){
 }
 
-user::user(int fd, sockaddr_in address, serveur *serv):_address(address), _fd(fd), _serv(serv), _mode(0){
+user::user(int fd, sockaddr_in address, serveur *serv):_address(address), _fd(fd), _serv(serv), _mode(""), _status("Unknown"){
     (void)_fd;
     (void)_address;
 }
 
 user::~user(){
     _serv->delUser(_serv->_pollfds.begin()+_fd);
+}
+
+int user::add_mode(std::string mode){
+    std::string available_modes("aiwroOs");
+    if (available_modes.find(mode) == std::string::npos)
+        return 0;
+    else if (_mode.find(mode) == std::string::npos)
+        _mode += mode;
+    return 1;
+}
+void user::deleteUserMode(char newMode){
+	size_t n;
+
+	n = _mode.find(newMode);
+	if (n != std::string::npos)
+		_mode.erase(n, 1);
 }
 
 void user::parse_commands(std::string message){

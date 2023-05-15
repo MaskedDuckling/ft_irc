@@ -28,11 +28,20 @@ class command{
         void PASS();
         void USER();
         void NICK();
+
         void JOIN();
         void OPER();
         void MODE();
+        void TOPIC();
+        void WHOIS();
+
         void PART();
         void QUIT();
+
+        void PING();
+        void PONG();
+
+
 
         void display_reply(std::string reply,...);
         void execute();
