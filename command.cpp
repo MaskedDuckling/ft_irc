@@ -86,6 +86,7 @@ void command::PASS(){
     if (_user->_serv->_password != _command[1])
         return display_reply(ERR_PASSWDMISMATCH);
     _user->_status = "Registered";
+    _user->_password = _command[1];
 }
 void command::USER(){
     if (_command.size() < 5)
@@ -127,7 +128,17 @@ void command::NICK(){
     }
 }
 void command::JOIN(){}
-void command::OPER(){}
+void command::OPER(){
+    if (_command.size() < 3)
+        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+    if (_command[1] != _user->_nick)
+        return display_reply(ERR_ERRONEUSNICKNAME, _command[1].c_str());
+    if (_command[2] != _user->_password)
+        return display_reply(ERR_PASSWDMISMATCH);
+    if (!_user->add_mode("o"))
+        return display_reply(ERR_NOOPERHOST);
+    return display_reply(RPL_YOUREOPER);
+}
 void command::MODE(){
     if (_command.size() < 2)
         return display_reply(ERR_NEEDMOREPARAMS, "MODE");
@@ -136,6 +147,9 @@ void command::MODE(){
     if (_command[2][0] == '+')
         if (!_user->add_mode(_command[2]))
            return display_reply(ERR_UMODEUNKNOWNFLAG, _command[2].c_str());
+    if (_command[2][0] == '-')
+        if (!_user->deleteUserMode(_command[2][1]))
+            return display_reply(ERR_UMODEUNKNOWNFLAG, _command[2].c_str());
 }
 void command::WHOIS(){
     if (_command.size() < 2)
@@ -145,8 +159,11 @@ void command::WHOIS(){
                 return display_reply(RPL_WHOISUSER, _user->_nick.c_str(), _user->_realname.c_str(), _user->_serv->_name.c_str(), _user->_realname.c_str());
     return display_reply(ERR_NOSUCHNICK, _command[1].c_str());
 }
-
-void command::PART(){}
+void command::PART(){
+    if (_command.size() < 2)
+        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+    
+}
 void command::QUIT(){}
 
 void command::PING(){

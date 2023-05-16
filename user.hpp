@@ -31,6 +31,7 @@ class user{
 		std::string             _mode;
 		channel                 *_channel;
 		std::string             _status;
+		std::string				_password;
 
 
 		user();
@@ -40,7 +41,7 @@ class user{
 		void parse_commands(std::string message);
 		void execute_commands();
 		int add_mode(std::string mode);
-		void deleteUserMode(char newMode);
+		int deleteUserMode(char newMode);
 
 };
 

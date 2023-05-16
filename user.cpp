@@ -20,12 +20,15 @@ int user::add_mode(std::string mode){
         _mode += mode;
     return 1;
 }
-void user::deleteUserMode(char newMode){
+int user::deleteUserMode(char newMode){
 	size_t n;
 
 	n = _mode.find(newMode);
-	if (n != std::string::npos)
+	if (n != std::string::npos){
 		_mode.erase(n, 1);
+        return (0);
+    }
+    return (1);
 }
 
 void user::parse_commands(std::string message){
