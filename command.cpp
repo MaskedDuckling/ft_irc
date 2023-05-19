@@ -74,6 +74,8 @@ void command::init_func_map(){
     _map_fonction.insert(std::make_pair("PING",&command::PING));
     _map_fonction.insert(std::make_pair("PONG",&command::PONG));
 
+
+	_map_fonction.insert(std::make_pair("PONG",&command::KICK));
 }
 
 
@@ -178,6 +180,35 @@ void command::PING(){
 void command::PONG(){
     if (_command.size() < 2)
         return display_reply(ERR_NOORIGIN);
+}
+
+void command::KICK()
+{
+	if (_command.size() < 3)
+		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+	if (_command.size() == 3)
+	{
+		for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
+		{
+			if (it->second->_nick == _command[2])
+			{
+				/*for (std::map<int, channel>::iterator it2 = it->second->_channels.begin(); it2 != it->second->_channels.end(); it2++)
+				{
+					if (it2->second._name == _command[1])
+					{
+						//it2->second._users.erase(it2->second._users.find(it->second->_fd));
+						//it->second->_channels.erase(it->second->_channels.find(it2->second._name));
+						//return;
+					}
+				}
+				**
+				**	Kick l'user de _command[1]
+				**	et lui envoyer un message priver.
+				*/
+				return;
+			}
+		}
+	}
 }
 
 std::ostream &operator<<(std::ostream &o, command &rhs){

@@ -41,7 +41,7 @@ class command{
         void PING();
         void PONG();
 
-
+		void KICK();
 
         void display_reply(std::string reply,...);
         void execute();
