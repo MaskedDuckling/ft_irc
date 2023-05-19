@@ -87,6 +87,7 @@ void command::PASS(){
         return display_reply(ERR_PASSWDMISMATCH);
     _user->_status = "Registered";
     _user->_password = _command[1];
+    return display_reply("\033[0;32mPassword correct !\033[0m, enter your nickname with ");
 }
 void command::USER(){
     if (_command.size() < 5)
@@ -97,6 +98,7 @@ void command::USER(){
 
     if (_user->_nick != ""){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
+        display_reply(CLEAR_TERM);
         display_reply(RPL_WELCOME, _user->_nick.c_str(), _user->_realname.c_str(), tmp.c_str());
 		display_reply(RPL_YOURHOST, _user->_serv->_name.c_str(), "1.0");
 		display_reply(RPL_CREATED, "today");
@@ -120,6 +122,7 @@ void command::NICK(){
 
     if (_user->_realname != ""){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
+        clear_terminal(_user->_fd);
         display_reply(RPL_WELCOME, _user->_nick.c_str(), _user->_realname.c_str(), tmp.c_str());
 		display_reply(RPL_YOURHOST, _user->_serv->_name.c_str(), "1.0");
 		display_reply(RPL_CREATED, "today");

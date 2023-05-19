@@ -45,4 +45,6 @@ class user{
 
 };
 
+void clear_terminal(int fd);
+
 #endif

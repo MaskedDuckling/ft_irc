@@ -6,6 +6,7 @@ user::user(){
 user::user(int fd, sockaddr_in address, serveur *serv):_address(address), _fd(fd), _serv(serv), _mode(""), _status("Unknown"){
     (void)_fd;
     (void)_address;
+    clear_terminal(fd);
 }
 
 user::~user(){
@@ -47,4 +48,14 @@ void user::execute_commands(){
         (*it)->execute();
     }
     _commands.clear();
+}
+
+void clear_terminal(int fd)
+{
+    std::string message;
+
+    message = "\x1B[2J\x1B[H";
+    send(fd, message.c_str(), message.size(), 0);
+    message = "\033[0;33mHello, Please enter the password with \033[0mPASS <PASSWORLD> \033[0;33m: \033[0m";
+    send(fd, message.c_str(), message.size(), 0);
 }
