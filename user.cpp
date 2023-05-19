@@ -56,6 +56,6 @@ void clear_terminal(int fd)
 
     message = "\x1B[2J\x1B[H";
     send(fd, message.c_str(), message.size(), 0);
-    message = "\033[0;33mHello, Please enter the password with \033[0mPASS <PASSWORLD> \033[0;33m: \033[0m";
+    message = "\033[0;33mHello, Please enter the password with \033[0mPASS \"PASSWORLD\" \033[0;33m: \n\033[0m";
     send(fd, message.c_str(), message.size(), 0);
 }

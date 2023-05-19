@@ -87,7 +87,7 @@ void command::PASS(){
         return display_reply(ERR_PASSWDMISMATCH);
     _user->_status = "Registered";
     _user->_password = _command[1];
-    return display_reply("\033[0;32mPassword correct !\033[0m, enter your nickname with ");
+    display_reply("\n\033[0;32mPassword correct !\n\033[0m\033[0;33mPlease enter your nickname with \033[0mNICK \"NAME\" \033[0;33m: \033[0m");
 }
 void command::USER(){
     if (_command.size() < 5)
@@ -95,7 +95,6 @@ void command::USER(){
     if (_user->_status != "Registered")
         return display_reply(ERR_ALREADYREGISTRED);
     _user->_realname = _command[1];
-
     if (_user->_nick != ""){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
         display_reply(CLEAR_TERM);
@@ -119,7 +118,7 @@ void command::NICK(){
     // if (kekchose d'autre)
     //     return display_reply(ERR_UNAVAILRESOURCE, _command[1].c_str());
     _user->_nick = _command[1];
-
+    display_reply("\n\033[0;32mNickname register !\n\033[0m\033[0;33mPlease enter your username with \033[0mUSER \"1\" \"1\" \"1\" \"1\" \033[0;33m: \033[0m");
     if (_user->_realname != ""){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
         clear_terminal(_user->_fd);
