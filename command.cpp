@@ -74,8 +74,6 @@ void command::init_func_map(){
     _map_fonction.insert(std::make_pair("PING",&command::PING));
     _map_fonction.insert(std::make_pair("PONG",&command::PONG));
 
-
-	_map_fonction.insert(std::make_pair("PONG",&command::KICK));
 }
 
 
@@ -123,7 +121,7 @@ void command::NICK(){
     display_reply("\n\033[0;32mNickname register !\n\033[0m\033[0;33mPlease enter your username with \033[0mUSER \"1\" \"1\" \"1\" \"1\" \033[0;33m: \033[0m");
     if (_user->_realname != ""){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
-        clear_terminal(_user->_fd);
+        display_reply(CLEAR_TERM);
         display_reply(RPL_WELCOME, _user->_nick.c_str(), _user->_realname.c_str(), tmp.c_str());
 		display_reply(RPL_YOURHOST, _user->_serv->_name.c_str(), "1.0");
 		display_reply(RPL_CREATED, "today");
@@ -131,7 +129,21 @@ void command::NICK(){
         _user->_status = "Connected";
     }
 }
-void command::JOIN(){}
+void command::JOIN()
+{
+    if (_command.size() < 2)
+        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+    for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
+    {
+        display_reply(it->first.c_str());
+        if (it->first == _command[1])
+        {
+            display_reply(CLEAR_TERM);
+            it->second->add_user(_user);
+        }
+    }
+    _user->_serv->_channels[_command[1]] = new channel(_command[1], _user, _user->_serv);
+}
 void command::OPER(){
     if (_command.size() < 3)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
@@ -170,18 +182,6 @@ void command::PART(){
 }
 void command::QUIT(){}
 
-void command::PING(){
-    std::string reply = "PONG : ";
-    if (_command.size() < 2)
-        return display_reply(ERR_NOORIGIN);
-    reply += _user->_serv->_name.c_str();
-    return display_reply(reply);
-}
-void command::PONG(){
-    if (_command.size() < 2)
-        return display_reply(ERR_NOORIGIN);
-}
-
 void command::KICK()
 {
 	if (_command.size() < 3)
@@ -209,6 +209,18 @@ void command::KICK()
 			}
 		}
 	}
+}
+
+void command::PING(){
+    std::string reply = "PONG : ";
+    if (_command.size() < 2)
+        return display_reply(ERR_NOORIGIN);
+    reply += _user->_serv->_name.c_str();
+    return display_reply(reply);
+}
+void command::PONG(){
+    if (_command.size() < 2)
+        return display_reply(ERR_NOORIGIN);
 }
 
 std::ostream &operator<<(std::ostream &o, command &rhs){

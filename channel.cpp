@@ -3,7 +3,7 @@
 channel::channel(){
 }
 
-channel::channel(std::string name, user *user):_name(name){
+channel::channel(std::string name, user *user, serveur *serv):_name(name), _serv(serv){
     add_user(user);
 }
 
@@ -13,7 +13,13 @@ channel::~channel(){
 void channel::add_user(user *user){
     _users.push_back(user);
     _users.back()->_mode = 2;
-    _users.back()->_channel = this;
+    user->_channel.push_back(this);
+    user->_commands.back()->display_reply(CLEAR_TERM);
+    std::string str = user->_nick;
+    str += "\033[0;33m has joined the channel: \033[0m";
+    str += _name;
+    str += "\n";
+    broadcast(str);
 }
 
 void channel::broadcast(std::string response){
