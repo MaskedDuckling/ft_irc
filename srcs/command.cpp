@@ -282,6 +282,7 @@ void command::PRIVMSG()
             it->second->broadcast(str);
         }
     }
+}
 
 void command::PING(){
     std::string reply = "PONG : ";
