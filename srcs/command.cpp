@@ -230,9 +230,9 @@ void command::KICK()
 						str += " has been kicked from the channel ";
 						str += it2->first;
 						str += "\033[0m\n";
-						it2->second->broadcast(str);			/*	Notifie les users du channel du kick	*/
 						it2->second->delete_user(it->second); /*	Supprime l'user de la liste du channel	*/
 						it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
+						it2->second->broadcast(str);			/*	Notifie les users du channel du kick	*/
 						return;
 					}
 				}
@@ -258,9 +258,9 @@ void command::KICK()
 						str += it2->first;
 						str += "\033[0m\n";
 						send(it->second->_fd, com.c_str(), com.size(), 0);
-						it2->second->broadcast(str);			/*	Notifie les users du channel du kick	*/
 						it2->second->delete_user(it->second); /*	Supprime l'user de la liste du channel	*/
 						it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
+						it2->second->broadcast(str);			/*	Notifie les users du channel du kick	*/
 						return;
 					}
 				}
