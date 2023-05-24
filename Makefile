@@ -1,45 +1,37 @@
 NAME = ircserv
 
-CC = c++
+SRCS =	srcs/main.cpp \
+		srcs/serveur.cpp \
+		srcs/user.cpp \
+		srcs/channel.cpp \
+		srcs/command.cpp	\
+		
 
-CFLAGS = -Wall -Wextra -Werror -std=c++98 -fsanitize=address
+OBJS = $(SRCS:.cpp=.o)
 
-SRC =	main.cpp \
-		serveur.cpp \
-		user.cpp \
-		channel.cpp \
-		command.cpp
+CXX = c++
 
-INC = serveur.hpp \
-		user.hpp \
-		channel.hpp \
-		command.hpp \
-		replies.hpp
+CXXFLAGS = -Werror -Wall -Wextra -std=c++98
 
-OBJ = $(SRC:.cpp=.o)
+RM = rm -f
 
 all: $(NAME)
 
-$(NAME): $(OBJ) $(INC)
-	@echo "\033[0;32m [OK] \033[0m       \033[0;33m Compiling:\033[0m" $(SRC)
-	@$(CC) $(CFLAGS) $(OBJ) -o $(NAME)
-	@echo "\033[0;32m [OK] \033[0m       \033[0;33m Creating:\033[0m" $(NAME)
-
-.cpp.o:
-	@$(CC) $(CFLAGS) -c $<
+$(NAME): $(OBJS)
+	@echo "\033[0;32m [OK] \033[0m		\033[0;35m Compiling:\033[0m" $(SRCS)
+	@$(CXX) $(CXXFLAGS) $(OBJS) -o	$(NAME)
+	@echo "\033[0;32m [OK] \033[0m		\033[0;35m Creating:\033[0m" $(NAME)
 
 clean:
-	@rm -f $(OBJ)
-	@echo "\033[0;32m [OK] \033[0m       \033[0;31m Delete:\033[0m" $(OBJ)
+	@$(RM) $(OBJS)
+	@echo "\033[0;32m [OK] \033[0m		\033[0;35m Delete:\033[0m" $(OBJS)
 
 fclean: clean
-	@rm -f $(NAME)
-	@echo "\033[0;32m [OK] \033[0m       \033[0;31m Delete:\033[0m" $(NAME)
-
-po: all clean
+	@$(RM) $(NAME)
+	@echo "\033[0;32m [OK] \033[0m		\033[0;35m Delete:\033[0m" $(NAME)
 
 re: fclean all
 
-.PHONY: all re clean fclean
+.PHONY: all clean fclean re
 
 .SILENT: $(OBJS)
