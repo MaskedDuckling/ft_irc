@@ -78,6 +78,7 @@ void command::init_func_map(){
     _map_fonction.insert(std::make_pair("PING",&command::PING));
     _map_fonction.insert(std::make_pair("PONG",&command::PONG));
 
+    _map_fonction.insert(std::make_pair("PRIVMSG",&command::PRIVMSG));
 }
 
 
@@ -147,6 +148,7 @@ void command::JOIN()
             return ;
         }
     }
+    display_reply(CLEAR_TERM);
     _user->_serv->_channels[_command[1]] = new channel(_command[1], _user, _user->_serv);
 }
 void command::OPER(){
@@ -183,9 +185,38 @@ void command::WHOIS(){
 void command::PART(){
     if (_command.size() < 2)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-    
 }
 void command::QUIT(){}
+
+void command::PRIVMSG()
+{
+    if (_command.size() < 3)
+        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+    for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
+    {
+        if (it->second->_nick == _command[1])
+        {
+            std::string str = "\033[0;35m";
+            str += _user->_nick;
+            str += " : ";
+            str += _command[2];
+            str += "\033[0m\n"; 
+            send(it->second->_fd, str.c_str(), str.size(), 0);
+        }
+    }
+    for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
+    {
+        if (it->first == _command[1])
+        {
+            std::string str = "\033[0;34m";
+            str += _user->_nick;
+            str += " : ";
+            str += _command[2];
+            str += "\033[0m\n"; 
+            it->second->broadcast(str);
+        }
+    }
+}
 
 void command::KICK()
 {

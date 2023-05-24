@@ -4,6 +4,8 @@
 #include <vector>
 #include <iostream>
 #include <map>
+#include <sys/types.h>
+#include <sys/socket.h>
 #include "replies.hpp"
 #include "user.hpp"
 
@@ -42,6 +44,7 @@ class command{
         void PONG();
 
 		void KICK();
+        void PRIVMSG();
 
         void display_reply(std::string reply,...);
         void execute();
