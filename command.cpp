@@ -219,12 +219,7 @@ void command::PRIVMSG()
             std::string str = "\033[0;35m";
             str += _user->_nick;
             str += " : ";
-            unsigned long i = 2;
-            while (i < _command.size())
-            {
-                str += _command[2];
-                str += " ";
-            }
+            str += _command[2];
             str += "\033[0m\n"; 
             send(it->second->_fd, str.c_str(), str.size(), 0);
         }
@@ -236,12 +231,8 @@ void command::PRIVMSG()
             std::string str = "\033[0;34m";
             str += _user->_nick;
             str += " : ";
-            unsigned long i = 2;
-            while (i < _command.size())
-            {
-                str += _command[2];
-                str += " ";
-            }
+            str += _command[2];
+            str += "\033[0m\n"; 
             str += "\033[0m\n"; 
             it->second->broadcast(str);
         }
