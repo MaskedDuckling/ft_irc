@@ -8,6 +8,7 @@
 #include <sys/socket.h>
 #include "replies.hpp"
 #include "user.hpp"
+#include "utils.hpp"
 
 class user;
 
