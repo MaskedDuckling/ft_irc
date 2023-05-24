@@ -1,21 +1,21 @@
 #ifndef SERVEUR_HPP
 # define SERVEUR_HPP
 
-#include <iostream>
-#include <sstream>
-#include <cstdlib>
-#include <unistd.h> 
-#include <sys/socket.h>
-#include <netinet/in.h>
-#include <poll.h>
-#include <fcntl.h>
-#include <vector>
-#include <map>
-#include <string.h>
-#include "user.hpp"
-#include "channel.hpp"
+# include <iostream>
+# include <sstream>
+# include <cstdlib>
+# include <unistd.h> 
+# include <sys/socket.h>
+# include <netinet/in.h>
+# include <poll.h>
+# include <fcntl.h>
+# include <vector>
+# include <map>
+# include <string.h>
+# include "user.hpp"
+# include "channel.hpp"
 
-#define BUFF_SIZE 1024
+# define BUFF_SIZE 1024
 // class user;
 /*A faire*/
 
@@ -23,6 +23,8 @@
 // Remttre en prive
 
 class channel;
+
+class user;
 
 class serveur{
     private:
