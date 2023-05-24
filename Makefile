@@ -5,6 +5,7 @@ SRCS =	srcs/main.cpp \
 		srcs/user.cpp \
 		srcs/channel.cpp \
 		srcs/command.cpp	\
+		srcs/utils.cpp	\
 		
 
 OBJS = $(SRCS:.cpp=.o)
