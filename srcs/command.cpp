@@ -209,6 +209,39 @@ void command::PART(){
         }
     }
 }
+
+void command::KICK()
+{
+	if (_command.size() < 3)
+		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+	if (_command.size() == 3)	 /*	KICK "channel" "USER"	*/
+	{
+		for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
+		{
+			if (it->second->_nick == _command[2])
+			{
+				for (std::map<std::string, channel *>::iterator it2 = it->second->_channels.begin(); it2 != it->second->_channels.end(); it2++)
+				{
+					if (it2->first == _command[1])
+					{
+						std::string str = "\033[0;34m";
+						str += it->second->_nick;
+						str += " has been kicked from the channel ";
+						str += it2->first;
+						str += "\033[0m\n";
+						it2->second->broadcast(str);			/*	Notifie les users du channel du kick	*/
+						it2->second->delete_user(it->second); /*	Supprime l'user de la liste du channel	*/
+						it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
+						return;
+					}
+				}
+				return display_reply(ERR_USERNOTINCHANNEL, _command[2].c_str(), _command[1].c_str());
+			}
+		}
+		return display_reply(ERR_NOSUCHNICK, _command[2].c_str());
+	}
+}
+
 void command::QUIT(){}
 
 void command::PRIVMSG()
@@ -239,35 +272,6 @@ void command::PRIVMSG()
             it->second->broadcast(str);
         }
     }
-}
-
-void command::KICK()
-{
-	if (_command.size() < 3)
-		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-	if (_command.size() == 3)
-	{
-		for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
-		{
-			if (it->second->_nick == _command[2])
-			{
-				/*for (std::map<int, channel>::iterator it2 = it->second->_channels.begin(); it2 != it->second->_channels.end(); it2++)
-				{
-					if (it2->second._name == _command[1])
-					{
-						//it2->second._users.erase(it2->second._users.find(it->second->_fd));
-						//it->second->_channels.erase(it->second->_channels.find(it2->second._name));
-						//return;
-					}
-				}
-				**
-				**	Kick l'user de _command[1]
-				**	et lui envoyer un message priver.
-				*/
-				return;
-			}
-		}
-	}
 }
 
 void command::PING(){
