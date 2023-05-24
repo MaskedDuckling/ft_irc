@@ -34,8 +34,9 @@ void command::execute(){
     if (_map_fonction.find(_command[0]) != _map_fonction.end())
             (this->*_map_fonction[_command[0]])();
     else if (_command[0] == "CAP"){}
-    else if (_user->_channel.empty() != 1)
+    else if (_user->_channel.size() > 0)
     {
+        std::cout << _user->_nick;
         _user->_channel.back()->print_msg(_command, _user);
     }
     else
@@ -185,6 +186,25 @@ void command::WHOIS(){
 void command::PART(){
     if (_command.size() < 2)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+    for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
+    {
+        if (it->first == _command[1])
+        {
+            for (std::vector<channel *>::iterator at = _user->_channel.begin(); at != _user->_channel.end(); at++)
+            {
+                if ((*at)->_name == _command[1])
+                {
+                    std::string str = "\033[0;34m";
+                    str += _user->_nick;
+                    str += " has left the channel\033[0m\n";
+                    (*at)->broadcast(str);
+                    (*at)->delete_user(_user);
+                    _user->_channel.pop_back();
+                    return ;
+                }
+            }
+        }
+    }
 }
 void command::QUIT(){}
 
@@ -199,7 +219,12 @@ void command::PRIVMSG()
             std::string str = "\033[0;35m";
             str += _user->_nick;
             str += " : ";
-            str += _command[2];
+            unsigned long i = 2;
+            while (i < _command.size())
+            {
+                str += _command[2];
+                str += " ";
+            }
             str += "\033[0m\n"; 
             send(it->second->_fd, str.c_str(), str.size(), 0);
         }
@@ -211,7 +236,12 @@ void command::PRIVMSG()
             std::string str = "\033[0;34m";
             str += _user->_nick;
             str += " : ";
-            str += _command[2];
+            unsigned long i = 2;
+            while (i < _command.size())
+            {
+                str += _command[2];
+                str += " ";
+            }
             str += "\033[0m\n"; 
             it->second->broadcast(str);
         }

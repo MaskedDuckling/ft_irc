@@ -26,6 +26,20 @@ void channel::add_user(user *user){
     _history.push_back(str);
 }
 
+void channel::delete_user(user *name)
+{
+    for (std::vector<user *>::iterator it = _users.begin(); it != _users.end(); it++)
+    {
+        if ((*it)->_nick == name->_nick)
+        {
+            std::vector<user *>::iterator at = it;
+            at++;
+            _users.erase(it, at);
+            return ;
+        }
+    }
+}
+
 void channel::broadcast(std::string response){
     for (std::vector <user *>::iterator it = _users.begin(); it != _users.end(); it++)
         send((*it)->_fd, response.c_str(), response.size(), 0);
@@ -56,3 +70,5 @@ void channel::print_msg(std::vector<std::string> str, user *user)
     _history.push_back(name);
     broadcast(name);
 }
+
+/////////// delete le channel si vide

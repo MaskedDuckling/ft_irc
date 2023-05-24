@@ -26,6 +26,7 @@ class channel{
         void broadcast(std::string response);
         void print_msg(std::vector<std::string> str, user *user);
         void add_user(user *user);
+        void delete_user(user *user);
         void list_users();
 };
 
