@@ -29,7 +29,7 @@ class user{
 		int                     _fd;
 		serveur                 *_serv;
 		std::string             _mode;
-		std::vector<channel *>  _channel;
+		std::map<std::string, channel *>  _channels;
 		std::string             _status;
 		std::string				_password;
 

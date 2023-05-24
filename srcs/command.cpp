@@ -34,10 +34,12 @@ void command::execute(){
     if (_map_fonction.find(_command[0]) != _map_fonction.end())
             (this->*_map_fonction[_command[0]])();
     else if (_command[0] == "CAP"){}
-    else if (_user->_channel.size() > 0)
+    else if (_user->_channels.size() > 0)
     {
         std::cout << _user->_nick;
-        _user->_channel.back()->print_msg(_command, _user);
+		std::map<std::string, channel *>::iterator it = _user->_channels.end();
+        it--;
+        it->second->print_msg(_command, _user);
     }
     else
         std::cout << "Command not found" << std::endl;
@@ -190,17 +192,18 @@ void command::PART(){
     {
         if (it->first == _command[1])
         {
-            for (std::vector<channel *>::iterator at = _user->_channel.begin(); at != _user->_channel.end(); at++)
+            for (std::map<std::string, channel *>::iterator at = _user->_channels.begin(); at != _user->_channels.end(); at++)
             {
-                if ((*at)->_name == _command[1])
+                if (at->first == _command[1])
                 {
                     std::string str = "\033[0;34m";
                     str += _user->_nick;
                     str += " has left the channel\033[0m\n";
-                    (*at)->broadcast(str);
-                    (*at)->delete_user(_user);
-                    _user->_channel.pop_back();
-                    return ;
+                    at->second->broadcast(str);
+                    at->second->delete_user(_user);
+                    //_user->_channel.pop_back();
+                    _user->_channels.erase(at);
+					return ;
                 }
             }
         }
@@ -232,8 +235,7 @@ void command::PRIVMSG()
             str += _user->_nick;
             str += " : ";
             str += _command[2];
-            str += "\033[0m\n"; 
-            str += "\033[0m\n"; 
+            str += "\033[0m\n";  
             it->second->broadcast(str);
         }
     }

@@ -13,7 +13,8 @@ channel::~channel(){
 void channel::add_user(user *user){
     _users.push_back(user);
     _users.back()->_mode = 2;
-    user->_channel.push_back(this);
+    //user->_channels.push_back(this);
+	user->_channels.insert(std::pair<std::string, channel *>(_name, this));
     std::string str = user->_nick;
     for (std::list <std::string>::iterator it = _history.begin(); it != _history.end(); it++)
         send(user->_fd, it->c_str(), it->size(), 0);
