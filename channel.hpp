@@ -2,6 +2,7 @@
 # define CHANNEL_HPP
 
 #include <vector>
+#include <list>
 #include "user.hpp"
 #include "serveur.hpp"
 #include "command.hpp"
@@ -15,6 +16,7 @@ class channel{
     public:
         std::string _name;
         std::vector <user *> _users;
+        std::list <std::string> _history;
         serveur	*_serv;
 
         channel();
@@ -22,6 +24,7 @@ class channel{
         ~channel();
 
         void broadcast(std::string response);
+        void print_msg(std::vector<std::string> str, user *user);
         void add_user(user *user);
         void list_users();
 };

@@ -34,6 +34,10 @@ void command::execute(){
     if (_map_fonction.find(_command[0]) != _map_fonction.end())
             (this->*_map_fonction[_command[0]])();
     else if (_command[0] == "CAP"){}
+    else if (_user->_channel.empty() != 1)
+    {
+        _user->_channel.back()->print_msg(_command, _user);
+    }
     else
         std::cout << "Command not found" << std::endl;
 }
@@ -140,6 +144,7 @@ void command::JOIN()
         {
             display_reply(CLEAR_TERM);
             it->second->add_user(_user);
+            return ;
         }
     }
     _user->_serv->_channels[_command[1]] = new channel(_command[1], _user, _user->_serv);
