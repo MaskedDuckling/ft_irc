@@ -77,6 +77,7 @@ void command::init_func_map(){
 
     _map_fonction.insert(std::make_pair("PART",&command::PART));
     _map_fonction.insert(std::make_pair("QUIT",&command::QUIT));
+	_map_fonction.insert(std::make_pair("KICK",&command::KICK));
 
     _map_fonction.insert(std::make_pair("PING",&command::PING));
     _map_fonction.insert(std::make_pair("PONG",&command::PONG));
