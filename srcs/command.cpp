@@ -240,7 +240,7 @@ void command::KICK()
 		}
 		return display_reply(ERR_NOSUCHNICK, _command[2].c_str());
 	}
-	else if (_command.size() > 3 && (_command[4].c_str()[0] == ':'))
+	else if (_command.size() > 3 && (_command[3].c_str()[0] == ':'))
 	{
 		std::string com = merge(_command, 4);
 		for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
