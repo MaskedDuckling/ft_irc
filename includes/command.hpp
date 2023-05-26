@@ -3,6 +3,9 @@
 
 #include <vector>
 #include <iostream>
+#include <string>
+#include <fstream>
+#include <signal.h>
 #include <map>
 #include <sys/types.h>
 #include <sys/socket.h>
@@ -49,6 +52,13 @@ class command{
 
         void display_reply(std::string reply,...);
         void execute();
+
+        class UserQuitServer : public std::exception
+        {	
+	        public:
+		
+		        const char* what() const throw();
+        };
 };
 
 std::ostream &operator<<(std::ostream &o, command &rhs);

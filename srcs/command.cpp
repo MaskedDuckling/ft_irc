@@ -78,6 +78,7 @@ void command::init_func_map(){
     _map_fonction.insert(std::make_pair("PART",&command::PART));
     _map_fonction.insert(std::make_pair("QUIT",&command::QUIT));
 	_map_fonction.insert(std::make_pair("KICK",&command::KICK));
+    _map_fonction.insert(std::make_pair("QUIT",&command::QUIT));
 
     _map_fonction.insert(std::make_pair("PING",&command::PING));
     _map_fonction.insert(std::make_pair("PONG",&command::PONG));
@@ -138,6 +139,12 @@ void command::NICK(){
         _user->_status = "Connected";
     }
 }
+
+
+
+
+
+
 void command::JOIN()
 {
     if (_command.size() < 2)
@@ -178,6 +185,10 @@ void command::MODE(){
         if (!_user->deleteUserMode(_command[2][1]))
             return display_reply(ERR_UMODEUNKNOWNFLAG, _command[2].c_str());
 }
+void command::TOPIC()
+{
+
+}
 void command::WHOIS(){
     if (_command.size() < 2)
         return display_reply(ERR_NONICKNAMEGIVEN);
@@ -186,6 +197,11 @@ void command::WHOIS(){
                 return display_reply(RPL_WHOISUSER, _user->_nick.c_str(), _user->_realname.c_str(), _user->_serv->_name.c_str(), _user->_realname.c_str());
     return display_reply(ERR_NOSUCHNICK, _command[1].c_str());
 }
+
+
+
+
+
 void command::PART(){
     if (_command.size() < 2)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
@@ -202,7 +218,6 @@ void command::PART(){
                     str += " has left the channel\033[0m\n";
                     at->second->broadcast(str);
                     at->second->delete_user(_user);
-                    //_user->_channel.pop_back();
                     _user->_channels.erase(at);
 					return ;
                 }
@@ -272,7 +287,13 @@ void command::KICK()
 	}
 }
 
-void command::QUIT(){}
+void command::QUIT()
+{
+    std::string str = "Leaving server MyIrc\n";
+    send(_user->_fd, str.c_str(), str.size(), 0);
+    close (_user->_fd);
+    delete _user;
+}
 
 void command::PRIVMSG()
 {
@@ -314,6 +335,10 @@ void command::PRIVMSG()
     }
 }
 
+
+
+
+
 void command::PING(){
     std::string reply = "PONG : ";
     if (_command.size() < 2)
@@ -324,6 +349,15 @@ void command::PING(){
 void command::PONG(){
     if (_command.size() < 2)
         return display_reply(ERR_NOORIGIN);
+}
+
+
+
+
+
+const char* command::UserQuitServer::what() const throw()
+{
+	return ("Leaving server MyIrc\n");
 }
 
 std::ostream &operator<<(std::ostream &o, command &rhs){
