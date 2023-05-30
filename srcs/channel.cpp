@@ -3,7 +3,8 @@
 channel::channel(){
 }
 
-channel::channel(std::string name, user *user, serveur *serv):_name(name), _serv(serv){
+channel::channel(std::string name, user *user, serveur *serv): _serv(serv){
+    _name = "#" + name;
     add_user(user);
 }
 
@@ -13,7 +14,6 @@ channel::~channel(){
 void channel::add_user(user *user){
     _users.push_back(user);
     _users.back()->_mode = 2;
-    //user->_channels.push_back(this);
 	user->_channels.insert(std::pair<std::string, channel *>(_name, this));
     std::string str = user->_nick;
     for (std::list <std::string>::iterator it = _history.begin(); it != _history.end(); it++)

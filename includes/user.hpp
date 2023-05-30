@@ -14,6 +14,7 @@
 #include "command.hpp"
 #include "serveur.hpp"
 #include "channel.hpp"
+#include "replies.hpp"
 
 class command;
 class serveur;
@@ -40,7 +41,7 @@ class user{
 
 		void parse_commands(std::string message);
 		void execute_commands();
-		int add_mode(std::string mode);
+		int add_mode(std::string mode, int oper);
 		int deleteUserMode(char newMode);
 
 };

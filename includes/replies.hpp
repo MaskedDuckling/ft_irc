@@ -105,7 +105,7 @@
 # define RPL_WHOISIDLE "317 <nick> <integer> :seconds idle"
 
 // CMD CLEAR TERMINAL
-#define CLEAR_TERM "\x1B[2J\x1B[H"
+# define CLEAR_TERM "\x1B[2J\x1B[H"
 
 // COLORS
 

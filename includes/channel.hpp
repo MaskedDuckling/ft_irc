@@ -14,7 +14,9 @@ class command;;
 class channel{
     private:
     public:
+    
         std::string _name;
+        std::string _topic;
         std::vector <user *> _users;
         std::list <std::string> _history;
         serveur	*_serv;
