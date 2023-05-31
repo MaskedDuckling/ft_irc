@@ -150,7 +150,7 @@ void command::JOIN()
 {
     if (_command.size() < 2)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-    _command[1] = "#" + _command[1];                                                                                                              //A peut etre modifier
+    //_command[1] = "#" + _command[1];                                                                                                              //A peut etre modifier
     for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
     {
         if (_user->_mode.find("r"))
@@ -304,16 +304,20 @@ void command::TOPIC()
         it++;
         i++;
     }
-    if (i == _user->_serv->_channels.size())
+    if (_user->_serv->_channels.empty())
+        return display_reply("no channel created");
+    if (i >= _user->_serv->_channels.size())
         return display_reply(ERR_NOSUCHNICK);
-    it = _user->_channels.begin();
+    std::map<std::string, channel *>::iterator it3 = _user->_channels.begin();
     i = 0;
-    while (it != _user->_channels.end() && it->second->_name != _command[1])
+    while (it3 != _user->_channels.end() && it3->second->_name != _command[1])
     {
-        it++;
+        it3++;
         i++;
     }
-    if (it == _user->_channels.end())
+    if (_user->_channels.empty())
+        return display_reply("no channel joined");
+    if (i >= _user->_channels.size())
         return display_reply(ERR_NOTONCHANNEL, _command[1].c_str());
     if (_command.size() == 2)
     {

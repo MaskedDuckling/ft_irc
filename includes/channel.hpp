@@ -3,6 +3,7 @@
 
 #include <vector>
 #include <list>
+#include <string>
 #include "user.hpp"
 #include "serveur.hpp"
 #include "command.hpp"
