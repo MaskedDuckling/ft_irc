@@ -34,8 +34,8 @@ class channel{
         void delete_user(user *user);
         void list_users();
 
-		void addMode(std::string mode);
-		void deleteMode(std::string mode);
+		void addMode(char c, std::string param);
+		void deleteMode(char mode);
 		void setLimit(long int limit);
 		void removeLimit();
 		unsigned int getNbUsers();

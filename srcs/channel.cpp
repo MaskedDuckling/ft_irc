@@ -73,16 +73,20 @@ void channel::print_msg(std::vector<std::string> str, user *user)
     broadcast(name);
 }
 
-void channel::addMode(std::string mode)
+void channel::addMode(char c, std::string param)
 {
-	_mode += mode;
+	if (c == 'l')
+		setLimit(std::stoi(param));
+	if (c == 'k')
+		setKey(param);
+	_mode += c;
 }
 
-void channel::deleteMode(std::string mode)
+void channel::deleteMode(char mode)
 {
-	if (mode.compare("l"))
+	if (mode == 'l')
 		removeLimit();
-	if (mode.compare("k"))
+	if (mode == 'k')
 		deleteKey();
 	if (_mode.find(mode) != std::string::npos)
 		_mode.erase(_mode.find(mode), 1);

@@ -204,19 +204,72 @@ void command::OPER()
 }
 void command::MODE()
 {
-    if (_command.size() < 2)
-        return display_reply(ERR_NEEDMOREPARAMS, "MODE");
-    if (_command[1] != _user->_nick)
-        return display_reply(ERR_USERSDONTMATCH, _user->_nick.c_str());
-    if (_command[2][0] == '+')
-    {
-        _command[2].erase(0, 1);
-        if (!_user->add_mode(_command[2], 0))
-           return display_reply(ERR_UMODEUNKNOWNFLAG, _command[2].c_str());
-    }
-    if (_command[2][0] == '-')
-        if (!_user->deleteUserMode(_command[2][1]))
-            return display_reply(ERR_UMODEUNKNOWNFLAG, _command[2].c_str());
+	std::string modes = "itkol";
+	int	j = 0;
+
+	if (_command.size() < 3)
+	{
+		display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+		return ;
+	}
+	for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
+	{
+		if (it->first == _command[1])
+		{
+			if (_command[2][0] == '+')
+			{
+				_command[2].erase(0, 1);
+				while (_command[2].size() > 0)
+				{
+					j = 0;
+					for (int i = 0; i < (int)modes.size(); i++)
+					{
+						if (_command[2][0] == modes[i])
+						{
+							j = 1;
+							if (_command[2][0] == 'k' || _command[2][0] == 'l')
+							{
+								if (_command.size() < 4)
+								{
+									display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+									return ;
+								}
+								it->second->addMode(_command[2][0], _command[3]);
+								_command.erase(_command.begin() + 3);
+							}
+							else
+								it->second->addMode(_command[2][0], NULL);
+						}
+					}
+					if (j == 0)
+						display_reply(ERR_UNKNOWNMODE, _command[2][0], _command[1].c_str());
+					_command[2].erase(0, 1);
+				}
+			}
+			else if (_command[2][0] == '-')
+			{
+				_command[2].erase(0, 1);
+				while (_command[2].size() > 0)
+				{
+					j = 0;
+					for (int i = 0; i < (int)modes.size(); i++)
+					{
+						if (_command[2][0] == modes[i])
+						{
+							j = 1;
+							it->second->deleteMode(_command[2][0]);
+						}
+					}
+					if (j == 0)
+						display_reply(ERR_UNKNOWNMODE, _command[2][0], _command[1].c_str());
+					_command[2].erase(0, 1);
+				}
+			}
+			return ;
+		}
+	}
+	display_reply(ERR_NOSUCHCHANNEL, _command[1].c_str());
+	return ;
 }
 
 
