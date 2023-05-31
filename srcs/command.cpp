@@ -227,7 +227,7 @@ void command::MODE()
 						if (_command[2][0] == modes[i])
 						{
 							j = 1;
-							if (_command[2][0] == 'k' || _command[2][0] == 'l')
+							if (_command[2][0] == 'k' || _command[2][0] == 'l' || _command[2][0] == 'o')
 							{
 								if (_command.size() < 4)
 								{
@@ -257,7 +257,18 @@ void command::MODE()
 						if (_command[2][0] == modes[i])
 						{
 							j = 1;
-							it->second->deleteMode(_command[2][0]);
+							if (_command[2][0] == 'o')
+							{
+								if (_command.size() < 4)
+								{
+									display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+									return ;
+								}
+								it->second->deleteMode(_command[2][0], _command[3]);
+								_command.erase(_command.begin() + 3);
+							}
+							else
+								it->second->deleteMode(_command[2][0], NULL);
 						}
 					}
 					if (j == 0)

@@ -79,17 +79,31 @@ void channel::addMode(char c, std::string param)
 		setLimit(std::stoi(param));
 	if (c == 'k')
 		setKey(param);
-	_mode += c;
+	if (c == 'o')
+	{
+		for (std::vector<user *>::iterator it = _operators.begin(); it != _operators.end(); it++)
+			if ((*it)->_nick == param)
+				add_operator(*it);
+	}
+	else
+		_mode += c;
 }
 
-void channel::deleteMode(char mode)
+void channel::deleteMode(char mode, std::string param)
 {
 	if (mode == 'l')
 		removeLimit();
 	if (mode == 'k')
 		deleteKey();
-	if (_mode.find(mode) != std::string::npos)
-		_mode.erase(_mode.find(mode), 1);
+	if (mode == 'o')
+	{
+		for (std::vector<user *>::iterator it = _operators.begin(); it != _operators.end(); it++)
+			if ((*it)->_nick == param)
+				delete_operator(*it);
+	}
+	else
+		if (_mode.find(mode) != std::string::npos)
+			_mode.erase(_mode.find(mode), 1);
 }
 
 void channel::setLimit(long int limit)
@@ -115,6 +129,25 @@ void channel::setKey(std::string key)
 void channel::deleteKey()
 {
 	_key = "";
+}
+
+void channel::add_operator(user *user)
+{
+	_operators.push_back(user);
+}
+
+void channel::delete_operator(user *name)
+{
+	for (std::vector<user *>::iterator it = _operators.begin(); it != _operators.end(); it++)
+	{
+		if ((*it)->_nick == name->_nick)
+		{
+			std::vector<user *>::iterator at = it;
+			at++;
+			_operators.erase(it, at);
+			return ;
+		}
+	}
 }
 
 /////////// delete le channel si vide

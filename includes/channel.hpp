@@ -21,6 +21,7 @@ class channel{
 		std::string _key;
 		long int	_limit;
         std::vector <user *> _users;
+		std::vector <user *> _operators;
         std::list <std::string> _history;
         serveur	*_serv;
 
@@ -32,10 +33,12 @@ class channel{
         void print_msg(std::vector<std::string> str, user *user);
         void add_user(user *user);
         void delete_user(user *user);
+		void add_operator(user *user);
+		void delete_operator(user *user);
         void list_users();
 
 		void addMode(char c, std::string param);
-		void deleteMode(char mode);
+		void deleteMode(char mode, std::string param);
 		void setLimit(long int limit);
 		void removeLimit();
 		unsigned int getNbUsers();
