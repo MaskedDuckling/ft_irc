@@ -82,6 +82,8 @@ void channel::deleteMode(std::string mode)
 {
 	if (mode.compare("l"))
 		removeLimit();
+	if (mode.compare("k"))
+		deleteKey();
 	if (_mode.find(mode) != std::string::npos)
 		_mode.erase(_mode.find(mode), 1);
 }
@@ -100,4 +102,15 @@ unsigned int channel::getNbUsers()
 {
 	return (_users.size());
 }
+
+void channel::setKey(std::string key)
+{
+	_key = key;
+}
+
+void channel::deleteKey()
+{
+	_key = "";
+}
+
 /////////// delete le channel si vide

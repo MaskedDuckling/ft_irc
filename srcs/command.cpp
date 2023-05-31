@@ -169,6 +169,19 @@ void command::JOIN()
 				display_reply(ERR_CHANNELISFULL, _command[1].c_str());
 				return ;
 			}
+			else if (it->second->_mode.find("k") > 0)
+			{
+				if (_command.size() < 3)
+				{
+					display_reply(ERR_PASSWDMISMATCH);
+					return ;
+				}
+				else if (it->second->_key != _command[2])
+				{
+					display_reply(ERR_PASSWDMISMATCH);
+					return ;
+				}
+			}
             display_reply(CLEAR_TERM);
             it->second->add_user(_user);
             return ;

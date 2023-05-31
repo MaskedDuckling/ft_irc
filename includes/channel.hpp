@@ -18,6 +18,7 @@ class channel{
         std::string _name;
         std::string _topic;
 		std::string _mode;
+		std::string _key;
 		long int	_limit;
         std::vector <user *> _users;
         std::list <std::string> _history;
@@ -38,6 +39,8 @@ class channel{
 		void setLimit(long int limit);
 		void removeLimit();
 		unsigned int getNbUsers();
+		void setKey(std::string key);
+		void deleteKey();
 };
 
 #endif
