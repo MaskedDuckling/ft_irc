@@ -290,38 +290,49 @@ void command::MODE()
 	return ;
 }
 
-
-
 void command::TOPIC()
 {
     if (_command.size() < 2)
         return display_reply(ERR_NEEDMOREPARAMS, "TOPIC");
+    unsigned long i = 0;
+    std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin();
+    while (it != _user->_serv->_channels.end() && it->second->_name != _command[1])
+    {
+        it++;
+        i++;
+    }
+    if (i == _user->_serv->_channels.size())
+        return display_reply(ERR_NOSUCHNICK);
+    it = _user->_channels.begin();
+    i = 0;
+    while (it != _user->_channels.end() && it->second->_name != _command[1])
+    {
+        it++;
+        i++;
+    }
+    if (it == _user->_channels.end())
+        return display_reply(ERR_NOTONCHANNEL, _command[1].c_str());
     if (_command.size() == 2)
     {
-        for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
+        for (std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin(); it2 != _user->_serv->_channels.end(); it2++)
         {
-            if (it->first == _command[1])
+            if (it2->second->_name == _command[1])
             {
-                send(_user->_fd, it->second->_topic.c_str(), it->second->_topic.size(), 0);
+                send(_user->_fd, it2->second->_topic.c_str(), it2->second->_topic.size(), 0);
                 return ;
-            }
-            else
-            {
-                std::string str = "\033[0;34mcannot find channel " + _command[1] +  "\n\033[0m";
-                send(_user->_fd, str.c_str(), str.size(), 0);
             }
         }
     }
-    if (_command.size() > 2)
+    else if (_command.size() > 2)
     {
-        for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
+        for (std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin(); it2 != _user->_serv->_channels.end(); it2++)
         {
-            if (it->first == _command[1])
+            if (it2->second->_name == _command[1])
             {
                 if (_command[2] == ":")
                 {
-                    it->second->_topic.empty();
-                    std::string str = "\033[0;34mNo topic has been clean for channel " + it->second->_name +  "\n\033[0m";
+                    it2->second->_topic.empty();
+                    std::string str = "\033[0;34mNo topic has been clean for channel " + it2->second->_name +  "\n\033[0m";
                     send(_user->_fd, str.c_str(), str.size(), 0);
                     return ;
                 }
@@ -333,21 +344,14 @@ void command::TOPIC()
                     str += _command[i++];
                     str += " ";
                 }
-                it->second->_topic = str;
-                str = "\033[0;34mtopic has been set for channel " + it->second->_name +  "\n\033[0m";
+                it->second->_topic = str + "\n";
+                str = "\033[0;34mtopic has been set for channel " + it2->second->_name +  "\n\033[0m";
                 send(_user->_fd, str.c_str(), str.size(), 0);
                 return ;
-            }
-            else
-            {
-                std::string str = "\033[0;34mcannot find channel " + _command[1] +  "\n\033[0m";
-                send(_user->_fd, str.c_str(), str.size(), 0);
             }
         }
     }
 }
-
-
 
 void command::WHOIS(){
     if (_command.size() < 2)
