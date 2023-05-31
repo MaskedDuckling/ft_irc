@@ -154,4 +154,12 @@ void channel::delete_operator(user *name)
 	}
 }
 
+int channel::isKeySet()
+{
+	if (_key == "")
+		return 1;
+	else
+		return (0);
+}
+
 /////////// delete le channel si vide

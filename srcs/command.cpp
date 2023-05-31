@@ -216,6 +216,7 @@ void command::MODE()
 {
 	std::string modes = "itkol";
 	int	j = 0;
+	int y = 0;
 
 	if (_command.size() < 3)
 	{
@@ -237,6 +238,25 @@ void command::MODE()
 						if (_command[2][0] == modes[i])
 						{
 							j = 1;
+							if ((_command[2][0] == 'k') && (it->second->isKeySet() == 0))
+							{
+								display_reply(ERR_KEYSET, _command[1].c_str());
+								return ;
+							}
+							if (_command[2][0] == 'o' && _command.size() > 3)
+							{
+								y = 0;
+								for (std::vector<user*>::iterator it2 = it->second->_users.begin() ; it2 != it->second->_users.end() ; it2++)
+								{
+									if ((*it2)->_nick == _command[3])
+										y = 1;
+								}
+								if (y == 0)
+								{
+									display_reply(ERR_USERNOTINCHANNEL, _command[3].c_str(), _command[1].c_str());
+									return ;
+								}
+							}
 							if (_command[2][0] == 'k' || _command[2][0] == 'l' || _command[2][0] == 'o')
 							{
 								if (_command.size() < 4)
@@ -272,6 +292,19 @@ void command::MODE()
 								if (_command.size() < 4)
 								{
 									display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+									return ;
+								}
+								y = 0;
+								for (std::vector<user*>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it2++)
+								{
+									if ((*it2)->_nick == _command[3])
+									{
+										y = 1;
+									}
+								}
+								if (y == 0)
+								{
+									display_reply(ERR_USERNOTINCHANNEL, _command[3].c_str(), _command[1].c_str());
 									return ;
 								}
 								it->second->deleteMode(_command[2][0], _command[3]);

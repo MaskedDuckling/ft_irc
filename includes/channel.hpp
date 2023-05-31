@@ -45,6 +45,7 @@ class channel{
 		unsigned int getNbUsers();
 		void setKey(std::string key);
 		void deleteKey();
+		int isKeySet();
 };
 
 #endif
