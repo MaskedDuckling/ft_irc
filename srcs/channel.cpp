@@ -1,10 +1,11 @@
 #include "../includes/channel.hpp"
 
-channel::channel(){
-}
+channel::channel() : _mode("0")
+{}
 
 channel::channel(std::string name, user *user, serveur *serv): _name(name), _serv(serv){
     add_user(user);
+	_mode = "0";
 }
 
 channel::~channel(){
@@ -69,6 +70,11 @@ void channel::print_msg(std::vector<std::string> str, user *user)
         _history.pop_front();
     _history.push_back(name);
     broadcast(name);
+}
+
+void channel::addMode(std::string mode)
+{
+	_mode += mode;
 }
 
 /////////// delete le channel si vide

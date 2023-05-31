@@ -17,6 +17,7 @@ class channel{
     
         std::string _name;
         std::string _topic;
+		std::string _mode;
         std::vector <user *> _users;
         std::list <std::string> _history;
         serveur	*_serv;
@@ -30,6 +31,8 @@ class channel{
         void add_user(user *user);
         void delete_user(user *user);
         void list_users();
+
+		void addMode(std::string mode);
 };
 
 #endif
