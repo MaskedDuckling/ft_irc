@@ -159,27 +159,30 @@ void command::JOIN()
         }
         if (it->first == _command[1])
         {
-			if (it->second->_mode.find("i") == std::string::npos)
+			for (std::vector<char>::iterator it2 = it->second->_mode.begin(); it2 != it->second->_mode.end(); it2++)
 			{
-				display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
-				return ;
-			}
-			else if (it->second->_limit > -1 && it->second->_limit <= (int)it->second->_users.size())
-			{
-				display_reply(ERR_CHANNELISFULL, _command[1].c_str());
-				return ;
-			}
-			else if (it->second->_mode.find("k") == std::string::npos)
-			{
-				if (_command.size() < 3)
+				if (*it2 == 'i')
 				{
-					display_reply(ERR_PASSWDMISMATCH);
+					display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
 					return ;
 				}
-				else if (it->second->_key != _command[2])
+				else if (it->second->_limit > -1 && it->second->_limit <= (int)it->second->_users.size())
 				{
-					display_reply(ERR_PASSWDMISMATCH);
+					display_reply(ERR_CHANNELISFULL, _command[1].c_str());
 					return ;
+				}
+				else if (*it2 == 'k')
+				{
+					if (_command.size() < 3)
+					{
+						display_reply(ERR_PASSWDMISMATCH);
+						return ;
+					}
+					else if (it->second->_key != _command[2])
+					{
+						display_reply(ERR_PASSWDMISMATCH);
+						return ;
+					}
 				}
 			}
             display_reply(CLEAR_TERM);

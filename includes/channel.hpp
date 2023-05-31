@@ -17,7 +17,7 @@ class channel{
     
         std::string _name;
         std::string _topic;
-		std::string _mode;
+		std::vector <char> _mode;
 		std::string _key;
 		int	_limit;
         std::vector <user *> _users;
