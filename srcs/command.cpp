@@ -159,7 +159,7 @@ void command::JOIN()
         }
         if (it->first == _command[1])
         {
-			if (it->second->_mode.find("i") > 0)
+			if (it->second->_mode.find("i") == std::string::npos)
 			{
 				display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
 				return ;
@@ -169,7 +169,7 @@ void command::JOIN()
 				display_reply(ERR_CHANNELISFULL, _command[1].c_str());
 				return ;
 			}
-			else if (it->second->_mode.find("k") > 0)
+			else if (it->second->_mode.find("k") == std::string::npos)
 			{
 				if (_command.size() < 3)
 				{
