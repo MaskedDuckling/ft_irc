@@ -169,7 +169,7 @@ void command::JOIN()
 				display_reply(ERR_CHANNELISFULL, _command[1].c_str());
 				return ;
 			}
-			else if (it->second->_mode.find("k") == it->second->_mode.size())
+			else if (it->second->_mode.find("k") == std::string::npos)
 			{
 				if (_command.size() < 3)
 				{

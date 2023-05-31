@@ -76,7 +76,7 @@ void channel::print_msg(std::vector<std::string> str, user *user)
 void channel::addMode(char c, std::string param)
 {
 	if (c == 'l')
-		//setLimit(std::stoi(param));
+		setLimit(atoi(param.c_str()));
 	if (c == 'k')
 		setKey(param);
 	if (c == 'o')
@@ -106,7 +106,7 @@ void channel::deleteMode(char mode, std::string param)
 			_mode.erase(_mode.find(mode), 1);
 }
 
-void channel::setLimit(long int limit)
+void channel::setLimit(int limit)
 {
 	_limit = limit;
 }

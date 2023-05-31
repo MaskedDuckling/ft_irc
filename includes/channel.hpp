@@ -20,7 +20,7 @@ class channel{
         std::string _topic;
 		std::string _mode;
 		std::string _key;
-		long int	_limit;
+		int	_limit;
         std::vector <user *> _users;
 		std::vector <user *> _operators;
         std::list <std::string> _history;
@@ -40,7 +40,7 @@ class channel{
 
 		void addMode(char c, std::string param);
 		void deleteMode(char mode, std::string param);
-		void setLimit(long int limit);
+		void setLimit(int limit);
 		void removeLimit();
 		unsigned int getNbUsers();
 		void setKey(std::string key);
