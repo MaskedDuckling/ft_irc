@@ -3,8 +3,7 @@
 channel::channel(){
 }
 
-channel::channel(std::string name, user *user, serveur *serv): _serv(serv){
-    _name = "#" + name;
+channel::channel(std::string name, user *user, serveur *serv): _name(name), _serv(serv){
     add_user(user);
 }
 

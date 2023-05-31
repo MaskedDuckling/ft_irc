@@ -150,7 +150,7 @@ void command::JOIN()
 {
     if (_command.size() < 2)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-    _command[1] = "#" + _command[1];
+    _command[1] = "#" + _command[1];                                                                                                              //A peut etre modifier
     for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
     {
         if (_user->_mode.find("r"))
@@ -370,9 +370,9 @@ void command::PRIVMSG()
         if (it->second->_nick == _command[1])
         {
             std::string str;
-            if (it->second->_nick.find("a"))
+            if (it->second->_mode.find("a") != std::string::npos)
             {
-                str = "\033[0;31mUser " + it->second->_nick + " is away\033[0m";
+                str = "\033[0;31mUser " + it->second->_nick + " is away\033[0m\n";
                 send(it->second->_fd, str.c_str(), str.size(), 0);
                 return ;
             }
