@@ -1,11 +1,12 @@
 #include "../includes/channel.hpp"
 
-channel::channel() : _mode("0")
+channel::channel() : _mode("0") , _limit(-1)
 {}
 
 channel::channel(std::string name, user *user, serveur *serv): _name(name), _serv(serv){
     add_user(user);
 	_mode = "0";
+	_limit = -1;
 }
 
 channel::~channel(){
@@ -77,4 +78,26 @@ void channel::addMode(std::string mode)
 	_mode += mode;
 }
 
+void channel::deleteMode(std::string mode)
+{
+	if (mode.compare("l"))
+		removeLimit();
+	if (_mode.find(mode) != std::string::npos)
+		_mode.erase(_mode.find(mode), 1);
+}
+
+void channel::setLimit(long int limit)
+{
+	_limit = limit;
+}
+
+void channel::removeLimit()
+{
+	_limit = -1;
+}
+
+unsigned int channel::getNbUsers()
+{
+	return (_users.size());
+}
 /////////// delete le channel si vide

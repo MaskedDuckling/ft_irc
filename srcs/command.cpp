@@ -159,6 +159,16 @@ void command::JOIN()
         }
         if (it->first == _command[1])
         {
+			if (it->second->_mode.find("i") > 0)
+			{
+				display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
+				return ;
+			}
+			else if (it->second->_limit > -1 && it->second->_limit <= (int)it->second->_users.size())
+			{
+				display_reply(ERR_CHANNELISFULL, _command[1].c_str());
+				return ;
+			}
             display_reply(CLEAR_TERM);
             it->second->add_user(_user);
             return ;

@@ -18,6 +18,7 @@ class channel{
         std::string _name;
         std::string _topic;
 		std::string _mode;
+		long int	_limit;
         std::vector <user *> _users;
         std::list <std::string> _history;
         serveur	*_serv;
@@ -33,6 +34,10 @@ class channel{
         void list_users();
 
 		void addMode(std::string mode);
+		void deleteMode(std::string mode);
+		void setLimit(long int limit);
+		void removeLimit();
+		unsigned int getNbUsers();
 };
 
 #endif
