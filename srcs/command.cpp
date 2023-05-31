@@ -202,6 +202,13 @@ void command::OPER()
         return display_reply(ERR_NOOPERHOST);
     return display_reply(RPL_YOUREOPER);
 }
+
+/**
+ * @brief Pour le mode o (operateur) ajouter la necessiter d'etre OPER pour l'utiliser
+ * et check que l'user target de o existe
+ * 
+ */
+
 void command::MODE()
 {
 	std::string modes = "itkol";
