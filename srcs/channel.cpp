@@ -76,7 +76,7 @@ void channel::print_msg(std::vector<std::string> str, user *user)
 void channel::addMode(char c, std::string param)
 {
 	if (c == 'l')
-		setLimit(std::stoi(param));
+		//setLimit(std::stoi(param));
 	if (c == 'k')
 		setKey(param);
 	if (c == 'o')
