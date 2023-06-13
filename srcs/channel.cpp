@@ -86,7 +86,9 @@ void channel::addMode(char c, std::string param)
 	}
 	else
 	{
-		_mode.push_back(c);
+		std::string str = "";
+		str += c;
+		_mode.push_back(str);
 	}
 }
 
@@ -104,8 +106,10 @@ void channel::deleteMode(char mode, std::string param)
 	}
 	else
 	{
-		for (std::vector <char>::iterator it = _mode.begin(); it != _mode.end(); it++)
-			if (*it == mode)
+		std::string str = "";
+		str += mode;
+		for (std::vector <std::string>::iterator it = _mode.begin(); it != _mode.end(); it++)
+			if (*it == str)
 				_mode.erase(it);
 	}
 }

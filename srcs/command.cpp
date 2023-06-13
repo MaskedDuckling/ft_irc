@@ -159,9 +159,9 @@ void command::JOIN()
         }
         if (it->first == _command[1])
         {
-			for (std::vector<char>::iterator it2 = it->second->_mode.begin(); it2 != it->second->_mode.end(); it2++)
+			for (std::vector<std::string>::iterator it2 = it->second->_mode.begin(); it2 != it->second->_mode.end(); it2++)
 			{
-				if (*it2 == 'i')
+				if (*it2 == "i")
 				{
 					display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
 					return ;
@@ -171,7 +171,7 @@ void command::JOIN()
 					display_reply(ERR_CHANNELISFULL, _command[1].c_str());
 					return ;
 				}
-				else if (*it2 == 'k')
+				else if (*it2 == "k")
 				{
 					if (_command.size() < 3)
 					{
