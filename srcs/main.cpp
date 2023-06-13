@@ -16,14 +16,7 @@ int main(int ac, char **av){
 	serveur serv(i,av[2]);
 	serv.affichage();
 	std::cout << "Exit value : [" << serv.init()  << "]" << std::endl;
-	try
-	{
-		while (true){
-			serv.loop();
+	while (true){
+		serv.loop();
 		}
-	}
-	catch(const std::exception& e)
-	{
-		std::cerr << e.what() << std::endl;
-	}
 }

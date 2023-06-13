@@ -29,6 +29,8 @@ class command{
 
         command &operator=(command const & rhs);
         
+		void execute();
+		void display_reply(std::string reply,...);
         static void init_func_map();
 
         void PASS();
@@ -38,27 +40,17 @@ class command{
         void JOIN();
         void OPER();
         void MODE();
+
         void TOPIC();
         void WHOIS();
 
         void PART();
-        void QUIT();
+		void KICK();
+
+		void PRIVMSG();
 
         void PING();
         void PONG();
-
-		void KICK();
-        void PRIVMSG();
-
-        void display_reply(std::string reply,...);
-        void execute();
-
-        class UserQuitServer : public std::exception
-        {	
-	        public:
-		
-		        const char* what() const throw();
-        };
 };
 
 std::ostream &operator<<(std::ostream &o, command &rhs);

@@ -6,12 +6,16 @@
 
 std::map<std::string, void (command::*)()> command::_map_fonction;
 
-command::command(){
-}
-command::~command(){
+////////////        	  constructor         //
+
+
+command::command()
+{
+
 }
 
-command::command(std::string message, user *user):_user(user){
+command::command(std::string message, user *user):_user(user)
+{
     while (message.find(" ") != std::string::npos)
     {
         _command.push_back(message.substr(0, message.find(" ")));
@@ -22,6 +26,23 @@ command::command(std::string message, user *user):_user(user){
         message = message.substr(message.find("\n")+1);
     }
 }
+
+
+
+////////////        	  destructor          //
+
+
+
+command::~command()
+{
+
+}
+
+
+
+////////////			public fonctions        //
+
+//				utility fonction			//
 
 void command::execute(){
     init_func_map();
@@ -64,7 +85,8 @@ void command::display_reply(std::string reply, ...){        /*Probablement erreu
     va_end(arg_list);
 }
 
-void command::init_func_map(){
+void command::init_func_map()
+{
     _map_fonction.insert(std::make_pair("PASS",&command::PASS));
     _map_fonction.insert(std::make_pair("USER",&command::USER));
     _map_fonction.insert(std::make_pair("NICK",&command::NICK));
@@ -72,22 +94,24 @@ void command::init_func_map(){
     _map_fonction.insert(std::make_pair("JOIN",&command::JOIN));
     _map_fonction.insert(std::make_pair("OPER",&command::OPER));
     _map_fonction.insert(std::make_pair("MODE",&command::MODE));
+
+
     _map_fonction.insert(std::make_pair("TOPIC",&command::TOPIC));
     _map_fonction.insert(std::make_pair("WHOIS",&command::WHOIS));
 
 
     _map_fonction.insert(std::make_pair("PART",&command::PART));
-    _map_fonction.insert(std::make_pair("QUIT",&command::QUIT));
 	_map_fonction.insert(std::make_pair("KICK",&command::KICK));
-    _map_fonction.insert(std::make_pair("QUIT",&command::QUIT));
+
+	_map_fonction.insert(std::make_pair("PRIVMSG",&command::PRIVMSG));
 
     _map_fonction.insert(std::make_pair("PING",&command::PING));
     _map_fonction.insert(std::make_pair("PONG",&command::PONG));
-
-    _map_fonction.insert(std::make_pair("PRIVMSG",&command::PRIVMSG));
 }
 
 
+
+//				command fontion	for log			//
 
 void command::PASS(){
     if (_command.size() < 2)
@@ -143,7 +167,7 @@ void command::NICK(){
 
 
 
-
+//				command fonction			//
 
 
 void command::JOIN()
@@ -159,9 +183,9 @@ void command::JOIN()
         }
         if (it->first == _command[1])
         {
-			for (std::vector<std::string>::iterator it2 = it->second->_mode.begin(); it2 != it->second->_mode.end(); it2++)
+			for (std::vector<char>::iterator it2 = it->second->_mode.begin(); it2 != it->second->_mode.end(); it2++)
 			{
-				if (*it2 == "i")
+				if (*it2 == 'i')
 				{
 					display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
 					return ;
@@ -171,7 +195,7 @@ void command::JOIN()
 					display_reply(ERR_CHANNELISFULL, _command[1].c_str());
 					return ;
 				}
-				else if (*it2 == "k")
+				else if (*it2 == 'k')
 				{
 					if (_command.size() < 3)
 					{
@@ -193,6 +217,8 @@ void command::JOIN()
     display_reply(CLEAR_TERM);
     _user->_serv->_channels[_command[1]] = new channel(_command[1], _user, _user->_serv);
 }
+
+
 void command::OPER()
 {
     if (_command.size() < 3)
@@ -268,7 +294,9 @@ void command::MODE()
 								_command.erase(_command.begin() + 3);
 							}
 							else
-								it->second->addMode(_command[2][0], NULL);
+							{
+								it->second->addMode(_command[2][0], "");
+							}
 						}
 					}
 					if (j == 0)
@@ -311,7 +339,7 @@ void command::MODE()
 								_command.erase(_command.begin() + 3);
 							}
 							else
-								it->second->deleteMode(_command[2][0], NULL);
+								it->second->deleteMode(_command[2][0], "");
 						}
 					}
 					if (j == 0)
@@ -326,6 +354,9 @@ void command::MODE()
 	return ;
 }
 
+
+
+
 void command::TOPIC()
 {
     if (_command.size() < 2)
@@ -337,10 +368,14 @@ void command::TOPIC()
         it++;
         i++;
     }
-    if (_user->_serv->_channels.empty())
-        return display_reply("no channel created");
+    if (it == _user->_serv->_channels.end())
+	{
+        return display_reply("channel not created");
+	}
     if (i >= _user->_serv->_channels.size())
+	{
         return display_reply(ERR_NOSUCHNICK);
+	}
     std::map<std::string, channel *>::iterator it3 = _user->_channels.begin();
     i = 0;
     while (it3 != _user->_channels.end() && it3->second->_name != _command[1])
@@ -348,7 +383,7 @@ void command::TOPIC()
         it3++;
         i++;
     }
-    if (_user->_channels.empty())
+    if (it3 == _user->_channels.end())
         return display_reply("no channel joined");
     if (i >= _user->_channels.size())
         return display_reply(ERR_NOTONCHANNEL, _command[1].c_str());
@@ -369,24 +404,33 @@ void command::TOPIC()
         {
             if (it2->second->_name == _command[1])
             {
+				for (std::vector <char>::iterator cha = it2->second->_mode.begin(); cha != it2->second->_mode.end(); cha++)
+				{
+					if (*cha == 't')
+					{
+						for (std::vector <user *>::iterator use = it2->second->_users.begin(); use != it2->second->_users.end(); use++)
+						{
+							
+						}
+					}
+				}
+				std::string str;
                 if (_command[2] == ":")
                 {
                     it2->second->_topic.empty();
-                    std::string str = "\033[0;34mNo topic has been clean for channel " + it2->second->_name +  "\n\033[0m";
-                    send(_user->_fd, str.c_str(), str.size(), 0);
+                    str = "\033[0;34mTopic has been clean for channel " + it2->second->_name +  " by " + _user->_nick + "\n\033[0m";
+                    it2->second->broadcast(str);
                     return ;
                 }
-                std::string str;
                 unsigned long i = 2;
-                _command[2].erase(0, 1);
                 while (i < _command.size())
                 {
                     str += _command[i++];
                     str += " ";
                 }
                 it->second->_topic = str + "\n";
-                str = "\033[0;34mtopic has been set for channel " + it2->second->_name +  "\n\033[0m";
-                send(_user->_fd, str.c_str(), str.size(), 0);
+                str = "\033[0;34mTopic has been set for channel " + it2->second->_name +  " by " + _user->_nick + "\n\033[0m";
+                it2->second->broadcast(str);
                 return ;
             }
         }
@@ -492,13 +536,6 @@ void command::KICK()
 	}
 }
 
-void command::QUIT()
-{
-    std::string str = "Leaving server MyIrc\n";
-    send(_user->_fd, str.c_str(), str.size(), 0);
-    delete _user;
-}
-
 void command::PRIVMSG()
 {
     if (_command.size() < 3)
@@ -565,13 +602,6 @@ void command::PONG(){
 }
 
 
-
-
-
-const char* command::UserQuitServer::what() const throw()
-{
-	return ("Leaving server MyIrc\n");
-}
 
 std::ostream &operator<<(std::ostream &o, command &rhs){
     for(std::vector<std::string>::iterator it = rhs._command.begin(); it != rhs._command.end(); it++){

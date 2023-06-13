@@ -57,6 +57,8 @@ void channel::list_users(){
 
 void channel::print_msg(std::vector<std::string> str, user *user)
 {
+	if (str[0] == "\n")
+		return ;
     std::string name;
     name = user->_nick;
     name += " : ";
@@ -86,9 +88,7 @@ void channel::addMode(char c, std::string param)
 	}
 	else
 	{
-		std::string str = "";
-		str += c;
-		_mode.push_back(str);
+		_mode.push_back(c);
 	}
 }
 
@@ -106,10 +106,8 @@ void channel::deleteMode(char mode, std::string param)
 	}
 	else
 	{
-		std::string str = "";
-		str += mode;
-		for (std::vector <std::string>::iterator it = _mode.begin(); it != _mode.end(); it++)
-			if (*it == str)
+		for (std::vector <char>::iterator it = _mode.begin(); it != _mode.end(); it++)
+			if (*it == mode)
 				_mode.erase(it);
 	}
 }
