@@ -164,4 +164,12 @@ int channel::isKeySet()
 		return (0);
 }
 
+int channel::isModeSet(char m)
+{
+	for(std::vector<char>::iterator it = _mode.begin(); it != _mode.end(); it++)
+		if (*it == m)
+			return (1);
+	return (0);
+}
+
 /////////// delete le channel si vide

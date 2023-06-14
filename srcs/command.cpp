@@ -240,6 +240,8 @@ void command::OPER()
 
 void command::MODE()
 {
+	if (_user->_mode.find('o') == std::string::npos)
+		return display_reply(ERR_NOPRIVILEGES);
 	std::string modes = "itkol";
 	int	j = 0;
 	int y = 0;
@@ -283,7 +285,11 @@ void command::MODE()
 									return ;
 								}
 							}
-							if (_command[2][0] == 'k' || _command[2][0] == 'l' || _command[2][0] == 'o')
+							if (it->second->isModeSet(_command[2][0]) == 1)
+							{
+								
+							}
+							else if (_command[2][0] == 'k' || _command[2][0] == 'l' || _command[2][0] == 'o')
 							{
 								if (_command.size() < 4)
 								{

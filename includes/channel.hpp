@@ -46,6 +46,7 @@ class channel{
 		void setKey(std::string key);
 		void deleteKey();
 		int isKeySet();
+		int isModeSet(char c);
 };
 
 #endif
