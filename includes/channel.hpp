@@ -47,6 +47,7 @@ class channel{
 		void deleteKey();
 		int isKeySet();
 		int isModeSet(char c);
+		int checkOper(std::string user);
 };
 
 #endif

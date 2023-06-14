@@ -239,9 +239,7 @@ void command::OPER()
  */
 
 void command::MODE()
-{
-	if (_user->_mode.find('o') == std::string::npos)
-		return display_reply(ERR_NOPRIVILEGES);
+{	
 	std::string modes = "itkol";
 	int	j = 0;
 	int y = 0;
@@ -255,6 +253,14 @@ void command::MODE()
 	{
 		if (it->first == _command[1])
 		{
+			if (it->second->checkOper(_user->_nick) == 0)
+			{
+				if (_user->_mode.find('o') == std::string::npos)
+				{
+					display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
+					return ;
+				}
+			}
 			if (_command[2][0] == '+')
 			{
 				_command[2].erase(0, 1);

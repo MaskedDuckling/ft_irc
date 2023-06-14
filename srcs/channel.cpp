@@ -172,4 +172,12 @@ int channel::isModeSet(char m)
 	return (0);
 }
 
+int channel::checkOper(std::string name)
+{
+	for (std::vector<user *>::iterator it = _operators.begin(); it != _operators.end(); it++)
+		if ((*it)->_nick == name)
+			return (1);
+	return (0);
+}
+
 /////////// delete le channel si vide
