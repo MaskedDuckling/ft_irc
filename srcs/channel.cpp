@@ -57,8 +57,6 @@ void channel::list_users(){
 
 void channel::print_msg(std::vector<std::string> str, user *user)
 {
-	if (str[0] == "\n")
-		return ;
     std::string name;
     name = user->_nick;
     name += " : ";

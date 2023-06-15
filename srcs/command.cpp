@@ -382,7 +382,7 @@ void command::TOPIC()
     }
     if (it == _user->_serv->_channels.end())
 	{
-        return display_reply("channel not created");
+        return display_reply("\033[0;31mChannel not created\033[0m");
 	}
     if (i >= _user->_serv->_channels.size())
 	{
@@ -396,7 +396,7 @@ void command::TOPIC()
         i++;
     }
     if (it3 == _user->_channels.end())
-        return display_reply("no channel joined");
+        return display_reply("\033[0;31mNo channel joined\033[0m");
     if (i >= _user->_channels.size())
         return display_reply(ERR_NOTONCHANNEL, _command[1].c_str());
     if (_command.size() == 2)
@@ -420,16 +420,25 @@ void command::TOPIC()
 				{
 					if (*cha == 't')
 					{
-						for (std::vector <user *>::iterator use = it2->second->_users.begin(); use != it2->second->_users.end(); use++)
-						{
-							
-						}
+                        std::vector <user *>::iterator user = it2->second->_users.begin();
+						while (user != it2->second->_users.end() && (*user)->_nick != _user->_nick)
+                            user++;
+                        if (user == it2->second->_users.end())
+                            return display_reply("\033[0;31mNo channel joined\033[0m");
+                        if (it->second->checkOper(_user->_nick) == 0)
+			            {
+				            if (_user->_mode.find('o') == std::string::npos)
+				            {
+					            display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
+					            return ;
+				            }
+		            	} 
 					}
 				}
-				std::string str;
+				std::string str = "\033[0;36mChannel topic: ";
                 if (_command[2] == ":")
                 {
-                    it2->second->_topic.empty();
+                    it2->second->_topic.clear();
                     str = "\033[0;34mTopic has been clean for channel " + it2->second->_name +  " by " + _user->_nick + "\n\033[0m";
                     it2->second->broadcast(str);
                     return ;
@@ -440,7 +449,7 @@ void command::TOPIC()
                     str += _command[i++];
                     str += " ";
                 }
-                it->second->_topic = str + "\n";
+                it->second->_topic = str + "\033[0m\n";
                 str = "\033[0;34mTopic has been set for channel " + it2->second->_name +  " by " + _user->_nick + "\n\033[0m";
                 it2->second->broadcast(str);
                 return ;
