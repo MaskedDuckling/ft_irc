@@ -227,7 +227,7 @@ void command::OPER()
         return display_reply(ERR_ERRONEUSNICKNAME, _command[1].c_str());
     if (_command[2] != _user->_password)
         return display_reply(ERR_PASSWDMISMATCH);
-    if (!_user->add_mode("o", 1))
+    if (!_user->add_mode("o", 1))										// verifier si l'utilisateur est deja oper
         return display_reply(ERR_NOOPERHOST);
     return display_reply(RPL_YOUREOPER);
 }
@@ -555,6 +555,26 @@ void command::KICK()
 		}
 		return display_reply(ERR_NOSUCHNICK, _command[2].c_str());
 	}
+}
+
+void command::INVITE()
+{
+    if (_command.size() < 3)
+         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+	for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
+	{
+		if (it->second->_nick == _command[1])
+		{
+			for (std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin(); it2 != _user->_serv->_channels.end(); it2++)
+			{
+				if (it2->first == _command[2])
+				{
+
+				}
+			}
+		}
+	}
+	return display_reply(ERR_NOSUCHNICK);
 }
 
 void command::PRIVMSG()

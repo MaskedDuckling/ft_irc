@@ -46,6 +46,7 @@ class command{
 
         void PART();
 		void KICK();
+        void INVITE();
 
 		void PRIVMSG();
 

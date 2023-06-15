@@ -100,13 +100,19 @@ void channel::deleteMode(char mode, std::string param)
 	{
 		for (std::vector<user *>::iterator it = _operators.begin(); it != _operators.end(); it++)
 			if ((*it)->_nick == param)
+			{
 				delete_operator(*it);
+				return ;
+			}
 	}
 	else
 	{
 		for (std::vector <char>::iterator it = _mode.begin(); it != _mode.end(); it++)
 			if (*it == mode)
+			{
 				_mode.erase(it);
+				return ;
+			}
 	}
 }
 
