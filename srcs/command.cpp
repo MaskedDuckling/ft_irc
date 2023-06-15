@@ -222,12 +222,23 @@ void command::JOIN()
 void command::OPER()
 {
     if (_command.size() < 3)
+	{
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+	}
     if (_command[1] != _user->_nick)
+	{
         return display_reply(ERR_ERRONEUSNICKNAME, _command[1].c_str());
+	}
     if (_command[2] != _user->_password)
+	{
         return display_reply(ERR_PASSWDMISMATCH);
-    if (!_user->add_mode("o", 1))										// verifier si l'utilisateur est deja oper
+	}
+	if (_user->_mode.find('o') != std::string::npos)
+	{
+		display_reply("You are already an operator");
+		return ;
+	}
+    if (!_user->add_mode("o", 1))
         return display_reply(ERR_NOOPERHOST);
     return display_reply(RPL_YOUREOPER);
 }
