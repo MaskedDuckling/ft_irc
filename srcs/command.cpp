@@ -109,6 +109,7 @@ void command::init_func_map()
 	_map_fonction.insert(std::make_pair("KICK",&command::KICK));
 
 	_map_fonction.insert(std::make_pair("PRIVMSG",&command::PRIVMSG));
+    _map_fonction.insert(std::make_pair("INVITE",&command::INVITE));
 
     _map_fonction.insert(std::make_pair("PING",&command::PING));
     _map_fonction.insert(std::make_pair("PONG",&command::PONG));
@@ -598,21 +599,45 @@ void command::KICK()
 void command::INVITE()
 {
     if (_command.size() < 3)
-         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-	for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
-	{
-		if (it->second->_nick == _command[1])
-		{
-			for (std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin(); it2 != _user->_serv->_channels.end(); it2++)
-			{
-				if (it2->first == _command[2])
-				{
-
-				}
-			}
-		}
-	}
-	return display_reply(ERR_NOSUCHNICK);
+        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+    std::map<int, user *>::iterator it = _user->_serv->_users.begin();
+    write(1, "A", 1);
+	while (it != _user->_serv->_users.end() && it->second->_nick != _command[1])
+    {
+        it++;
+    }
+    write(1, "B", 1);
+    if (it == _user->_serv->_users.end())
+    {
+        return display_reply(ERR_NOSUCHNICK);
+    }
+     write(1, "C", 1);
+    std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin();
+    while (it2 != _user->_serv->_channels.end() && it2->first != _command[2])
+    {
+        it2++;
+    }
+    if (it2 == _user->_serv->_channels.end())
+    {
+        return ;
+    }
+    std::vector <user *>::iterator _use = it2->second->_users.begin();
+    while (_use != it2->second->_users.end() && (*_use)->_nick != _user->_nick && (*_use)->_nick != _command[2])
+    {
+        _use++;
+    }
+    if (_use == it2->second->_users.end())
+	    return display_reply(ERR_NOTONCHANNEL);
+    /*else if ((*_use)->_nick == _command[2])
+        return display_reply(ERR_USERONCHANNEL);*/                  //AJOUTER si utilisateur est deja sur le serveur
+    it2->second->add_user(it->second);
+    std::string str = "\x1B[2J\x1B[H";
+    send(it->second->_fd, str.c_str(), str.size(), 0);
+    it2->second->print_history(it->second);
+    str = "\033[0;34mYou have been invite to join the channel " + it2->first + "\033[0m\n";
+    send(it->second->_fd, str.c_str(), str.size(), 0);
+    str = "\033[0;34mYou invite " + it->second->_nick + " to join the channel " + it2->first + "\033[0m\n";
+    send(_user->_fd, str.c_str(), str.size(), 0);
 }
 
 void command::PRIVMSG()
