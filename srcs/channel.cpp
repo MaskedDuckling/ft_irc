@@ -57,8 +57,7 @@ void channel::list_users(){
 
 void channel::print_msg(std::vector<std::string> str, user *user)
 {
-    std::string name;
-    name = user->_nick;
+    std::string name = "\033[0;33m#" + _name + " \033[0m" + user->_nick;
     name += " : ";
     for (std::vector <std::string>::iterator it = str.begin(); it != str.end(); it++)
     {
@@ -70,6 +69,14 @@ void channel::print_msg(std::vector<std::string> str, user *user)
         _history.pop_front();
     _history.push_back(name);
     broadcast(name);
+}
+
+void channel::print_history(user *user)
+{
+	for (std::list<std::string>::iterator it = _history.begin(); it != _history.end(); it++)
+	{
+		send(user->_fd, it->c_str(), it->size(), 0);
+	}
 }
 
 void channel::addMode(char c, std::string param)

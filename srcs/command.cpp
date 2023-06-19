@@ -57,7 +57,6 @@ void command::execute(){
     else if (_command[0] == "CAP"){}
     else if (_user->_channels.size() > 0)
     {
-        std::cout << _user->_nick;
 		std::map<std::string, channel *>::iterator it = _user->_channels.end();
         it--;
         it->second->print_msg(_command, _user);
@@ -183,6 +182,29 @@ void command::JOIN()
         }
         if (it->first == _command[1])
         {
+            if (_user->_channels.size() > 0)
+            {
+                for (std::vector <user *>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it++)
+                {
+                    if ((*it2)->_nick == _user->_nick)
+                    {
+                        display_reply(CLEAR_TERM);
+                        it->second->print_history(_user);
+                        for (std::map<std::string, channel *>::iterator chan = _user->_channels.begin(); chan != _user->_channels.end(); chan++)
+                        {
+                            if (chan->first == it->first)
+                            {
+                                _user->_channels.erase(chan);
+                                _user->_channels.insert(std::pair<std::string, channel *>(it->first, it->second));
+                                std::string str = "\033[0;33mRecover chat from " + it->first + "\033[0m\n";
+                                send((*it2)->_fd, str.c_str(), str.size(), 0);
+                                return ;
+                            }
+                        }
+                        return ;
+                    }
+                }
+            }
 			for (std::vector<char>::iterator it2 = it->second->_mode.begin(); it2 != it->second->_mode.end(); it2++)
 			{
 				if (*it2 == 'i')
