@@ -57,9 +57,15 @@ void command::execute(){
     else if (_command[0] == "CAP"){}
     else if (_user->_channels.size() > 0)
     {
-		std::map<std::string, channel *>::iterator it = _user->_channels.end();
-        it--;
-        it->second->print_msg(_command, _user);
+		std::string str = _user->_chan_name.back();
+        for (std::map<std::string, channel *>::iterator _chan = _user->_channels.begin(); _chan != _user->_channels.end(); _chan++)
+        {
+            if (str == _chan->first)
+            {
+                _chan->second->print_msg(_command, _user);
+                return ;
+            }
+        }
     }
     else
         std::cout << "Command not found" << std::endl;
@@ -190,12 +196,11 @@ void command::JOIN()
                     {
                         display_reply(CLEAR_TERM);
                         it->second->print_history(_user);
-                        for (std::map<std::string, channel *>::iterator chan = _user->_channels.begin(); chan != _user->_channels.end(); chan++)
+                        for (std::vector <std::string>::iterator chan = _user->_chan_name.begin(); chan != _user->_chan_name.end(); chan++)
                         {
-                            if (chan->first == it->first)
+                            if (*chan == it->first)
                             {
-                                _user->_channels.erase(chan);
-                                _user->_channels.insert(std::pair<std::string, channel *>(it->first, it->second));
+                                _user->_chan_name.push_back(it->first);
                                 std::string str = "\033[0;33mRecover chat from " + it->first + "\033[0m\n";
                                 send((*it2)->_fd, str.c_str(), str.size(), 0);
                                 return ;

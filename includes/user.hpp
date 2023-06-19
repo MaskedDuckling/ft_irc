@@ -31,6 +31,7 @@ class user{
 		serveur                 *_serv;
 		std::string             _mode;
 		std::map<std::string, channel *>  _channels;
+		std::vector<std::string> _chan_name;
 		std::string             _status;
 		std::string				_password;
 
