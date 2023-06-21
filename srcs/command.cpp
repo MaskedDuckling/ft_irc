@@ -184,29 +184,7 @@ void command::JOIN()
     {
         if (it->first == _command[1])
         {
-            if (_user->_channels.size() > 0)
-            {
-                for (std::vector <user *>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it++)
-                {
-                    if ((*it2)->_nick == _user->_nick)
-                    {
-                        display_reply(CLEAR_TERM);
-                        it->second->print_history(_user);
-                        for (std::vector <std::string>::iterator chan = _user->_chan_name.begin(); chan != _user->_chan_name.end(); chan++)
-                        {
-                            if (*chan == it->first)
-                            {
-                                _user->_chan_name.push_back(it->first);
-                                std::string str = "\033[0;33mRecover chat from " + it->first + "\033[0m\n";
-                                send((*it2)->_fd, str.c_str(), str.size(), 0);
-                                return ;
-                            }
-                        }
-                        return ;
-                    }
-                }
-            }
-			for (std::vector<char>::iterator it2 = it->second->_mode.begin(); it2 != it->second->_mode.end(); it2++)
+            for (std::vector<char>::iterator it2 = it->second->_mode.begin(); it2 != it->second->_mode.end(); it2++)
 			{
 				if (*it2 == 'i')
 				{
@@ -232,6 +210,28 @@ void command::JOIN()
 					}
 				}
 			}
+            if (_user->_channels.size() > 0)
+            {
+                for (std::vector <user *>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it++)
+                {
+                    if ((*it2)->_nick == _user->_nick)
+                    {
+                        display_reply(CLEAR_TERM);
+                        it->second->print_history(_user);
+                        for (std::vector <std::string>::iterator chan = _user->_chan_name.begin(); chan != _user->_chan_name.end(); chan++)
+                        {
+                            if (*chan == it->first)
+                            {
+                                _user->_chan_name.push_back(it->first);
+                                std::string str = "\033[0;33mRecover chat from " + it->first + "\033[0m\n";
+                                send((*it2)->_fd, str.c_str(), str.size(), 0);
+                                return ;
+                            }
+                        }
+                        return ;
+                    }
+                }
+            }
             display_reply(CLEAR_TERM);
             it->second->add_user(_user, 1);
             return ;
@@ -608,7 +608,6 @@ void command::INVITE()
         }
         it++;
     }
-    it--;
     if (it == _user->_serv->_users.end())
     {
         return display_reply(ERR_NOSUCHNICK, _command[1].c_str());
@@ -650,7 +649,7 @@ void command::INVITE()
         }
         _use++;
     }
-    if (_use == it2->second->_users.end())
+    if (_use != it2->second->_users.end())
 	    return display_reply(ERR_USERONCHANNEL, _command[1].c_str(), _command[2].c_str());
     it2->second->add_user(it->second, 0);
     std::string str = "\x1B[2J\x1B[H";
@@ -710,9 +709,6 @@ void command::PRIVMSG()
         }
     }
 }
-
-
-
 
 
 void command::PING(){
