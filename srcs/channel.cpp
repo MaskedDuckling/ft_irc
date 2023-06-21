@@ -4,28 +4,36 @@ channel::channel() : _limit(-1)
 {}
 
 channel::channel(std::string name, user *user, serveur *serv): _name(name), _serv(serv){
-    add_user(user);
+    add_user(user, 1);
 	_limit = -1;
 }
 
 channel::~channel(){
 }
 
-void channel::add_user(user *user){
+void channel::add_user(user *user, int mode)
+{
     _users.push_back(user);
     _users.back()->_mode = 2;
 	user->_channels.insert(std::pair<std::string, channel *>(_name, this));
 	user->_chan_name.push_back(_name);
     std::string str = user->_nick;
     for (std::list <std::string>::iterator it = _history.begin(); it != _history.end(); it++)
+	{
         send(user->_fd, it->c_str(), it->size(), 0);
-    str += "\033[0;33m has joined the channel: \033[0m";
-    str += _name;
-    str += "\n";
-    broadcast(str);
-    if (_history.size() > 20)
-        _history.pop_front();
-    _history.push_back(str);
+	}
+	if (mode == 1)
+    {
+		str += "\033[0;33m has joined the channel: \033[0m";
+		str += _name;
+		str += "\n";
+		broadcast(str);
+		if (_history.size() > 20)
+		{
+       		_history.pop_front();
+		}
+    	_history.push_back(str);
+	}
 }
 
 void channel::delete_user(user *name)

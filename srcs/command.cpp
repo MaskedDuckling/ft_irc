@@ -238,7 +238,7 @@ void command::JOIN()
 				}
 			}
             display_reply(CLEAR_TERM);
-            it->second->add_user(_user);
+            it->second->add_user(_user, 1);
             return ;
         }
     }
@@ -601,20 +601,34 @@ void command::INVITE()
     if (_command.size() < 3)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
     std::map<int, user *>::iterator it = _user->_serv->_users.begin();
-    write(1, "A", 1);
-	while (it != _user->_serv->_users.end() && it->second->_nick != _command[1])
-    {
-        it++;
-    }
-    write(1, "B", 1);
     if (it == _user->_serv->_users.end())
     {
-        return display_reply(ERR_NOSUCHNICK);
+        return ;
     }
-     write(1, "C", 1);
-    std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin();
-    while (it2 != _user->_serv->_channels.end() && it2->first != _command[2])
+	while (it != _user->_serv->_users.end())
     {
+        if (it->second->_nick == _command[1])
+        {
+            break;
+        }
+        it++;
+    }
+    it--;
+    if (it == _user->_serv->_users.end())
+    {
+        return display_reply(ERR_NOSUCHNICK, _command[1].c_str());
+    }
+    std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin();
+    if (it2 == _user->_serv->_channels.end())
+    {
+        return ;
+    }
+    while (it2 != _user->_serv->_channels.end())
+    {
+        if ( it2->first == _command[2])
+        {
+            break;
+        }
         it2++;
     }
     if (it2 == _user->_serv->_channels.end())
@@ -622,15 +636,28 @@ void command::INVITE()
         return ;
     }
     std::vector <user *>::iterator _use = it2->second->_users.begin();
-    while (_use != it2->second->_users.end() && (*_use)->_nick != _user->_nick && (*_use)->_nick != _command[2])
+    while (_use != it2->second->_users.end())
     {
+        if ((*_use)->_nick == _user->_nick)
+        {
+            break;
+        }
         _use++;
     }
     if (_use == it2->second->_users.end())
-	    return display_reply(ERR_NOTONCHANNEL);
-    /*else if ((*_use)->_nick == _command[2])
-        return display_reply(ERR_USERONCHANNEL);*/                  //AJOUTER si utilisateur est deja sur le serveur
-    it2->second->add_user(it->second);
+	    return display_reply(ERR_NOTONCHANNEL, _command[2].c_str());
+    _use = it2->second->_users.begin();
+    while (_use != it2->second->_users.end())
+    {
+        if ((*_use)->_nick == _command[2])
+        {
+            break;
+        }
+        _use++;
+    }
+    if (_use == it2->second->_users.end())
+	    return display_reply(ERR_USERONCHANNEL, _command[1].c_str(), _command[2].c_str());
+    it2->second->add_user(it->second, 0);
     std::string str = "\x1B[2J\x1B[H";
     send(it->second->_fd, str.c_str(), str.size(), 0);
     it2->second->print_history(it->second);
