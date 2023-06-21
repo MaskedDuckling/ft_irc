@@ -199,5 +199,3 @@ int channel::checkOper(std::string name)
 			return (1);
 	return (0);
 }
-
-/////////// delete le channel si vide

@@ -179,14 +179,9 @@ void command::NICK(){
 void command::JOIN()
 {
     if (_command.size() < 2)
-        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-    //_command[1] = "#" + _command[1];                                                                                                              //A peut etre modifier
+        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());                                                                                                            //A peut etre modifier
     for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
     {
-        if (_user->_mode.find("r"))
-        {
-            std::string str = "\033[0;34mcannot connect to the channel\n\033[0m";
-        }
         if (it->first == _command[1])
         {
             if (_user->_channels.size() > 0)
