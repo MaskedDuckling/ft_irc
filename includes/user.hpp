@@ -24,6 +24,7 @@ class user{
 	private:
 	public:
 		std::string             _realname;
+		std::string				_username;
 		std::string             _nick;
 		sockaddr_in             _address;
 		std::vector<command *> _commands;

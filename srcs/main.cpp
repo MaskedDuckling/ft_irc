@@ -14,7 +14,9 @@ int main(int ac, char **av){
 	}
 
 	serveur serv(i,av[2]);
+	std::cout << "\x1B[2J\x1B[H";
 	serv.affichage();
+	 std::cout << "\033[0;32mServer is UP !\n\033[0m";
 	std::cout << "Exit value : [" << serv.init()  << "]" << std::endl;
 	while (true){
 		serv.loop();

@@ -36,6 +36,7 @@ class serveur{
         int                 _nbUser;
         int			        _port;
         std::string	        _password;
+        std::string         _oper;
         int                 _main_socket;
         sockaddr_in         _address;
         std::string        _name;

@@ -50,7 +50,7 @@ void command::execute(){
         std::cout << "No command to execute" << std::endl;
         return ;
     }
-    std::cout << "Executing command: " << *this << std::endl;
+    //std::cout << "Executing command: " << *this << std::endl;
 
     if (_map_fonction.find(_command[0]) != _map_fonction.end())
             (this->*_map_fonction[_command[0]])();
@@ -85,7 +85,7 @@ void command::display_reply(std::string reply, ...){        /*Probablement erreu
         }
     }
     message += "\r\n";
-    std::cout << message;
+    //std::cout << message;
     send(_user->_fd, message.c_str(), message.size(), 0);
     va_end(arg_list);
 }
@@ -117,7 +117,7 @@ void command::init_func_map()
 
 
 
-//				command fontion	for log			//
+//				command fonction	for log			//
 
 void command::PASS(){
     if (_command.size() < 2)
@@ -159,7 +159,7 @@ void command::NICK(){
     // if (kekchose d'autre)
     //     return display_reply(ERR_UNAVAILRESOURCE, _command[1].c_str());
     _user->_nick = _command[1];
-    display_reply("\n\033[0;32mNickname register !\n\033[0m\033[0;33mPlease enter your username with \033[0mUSER \"1\" \"1\" \"1\" \"1\" \033[0;33m: \033[0m");
+    display_reply("\n\033[0;32mNickname register !\n\033[0m\033[0;33mPlease enter your username with \033[0mUSER \"username\" \"mode\" \"unused\" \"realname\" \033[0;33m: \033[0m");
     if (_user->_realname != ""){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
         display_reply(CLEAR_TERM);
@@ -252,7 +252,7 @@ void command::OPER()
 	{
         return display_reply(ERR_ERRONEUSNICKNAME, _command[1].c_str());
 	}
-    if (_command[2] != _user->_password)
+    if (_command[2] != _user->_serv->_oper)
 	{
         return display_reply(ERR_PASSWDMISMATCH);
 	}
@@ -595,6 +595,8 @@ void command::INVITE()
 {
     if (_command.size() < 3)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+    if (_user->_mode.find('o') == std::string::npos)
+        return display_reply("Need to be operator tu use this command");
     std::map<int, user *>::iterator it = _user->_serv->_users.begin();
     if (it == _user->_serv->_users.end())
     {
