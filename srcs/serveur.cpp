@@ -5,7 +5,7 @@
 serveur::serveur(): _port(0), _password(NULL), _oper("lol"){
 }
 
-serveur::serveur(int port, std::string password): _port(port), _password(password), _name("MyIRC"){
+serveur::serveur(int port, std::string password): _port(port), _password(password), _oper("lol"), _name("MyIRC"){
     _nbUser = 0;
 }
 

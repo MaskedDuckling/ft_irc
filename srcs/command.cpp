@@ -696,7 +696,7 @@ void command::PRIVMSG()
     {
         if (it->first == _command[1])
         {
-            std::string str = "\033[0;34m";
+            std::string str = "\033[0;34m#" + it->first + " ";
             unsigned long i = 2;
             str += _user->_nick;
             str += " : ";
