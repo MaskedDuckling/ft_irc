@@ -27,7 +27,7 @@ void channel::add_user(user *user, int mode)
 		str += "\033[0;33m has joined the channel: \033[0m";
 		str += _name;
 		str += "\n";
-		broadcast(str);
+		broadcast(str, "-1");
 		if (_history.size() > 20)
 		{
        		_history.pop_front();
@@ -50,9 +50,12 @@ void channel::delete_user(user *name)
     }
 }
 
-void channel::broadcast(std::string response){
+void channel::broadcast(std::string response, std::string usr){
     for (std::vector <user *>::iterator it = _users.begin(); it != _users.end(); it++)
-        send((*it)->_fd, response.c_str(), response.size(), 0);
+	{
+		if (usr != (*it)->_nick)
+        	send((*it)->_fd, response.c_str(), response.size(), 0);
+	}
 }
 
 void channel::list_users(){
@@ -77,7 +80,7 @@ void channel::print_msg(std::vector<std::string> str, user *user)
     if (_history.size() > 20)
         _history.pop_front();
     _history.push_back(name);
-    broadcast(name);
+    broadcast(name, user->_nick);
 }
 
 void channel::print_history(user *user)

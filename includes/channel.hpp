@@ -30,7 +30,7 @@ class channel{
         channel(std::string name, user *user, serveur *serv);
         ~channel();
 
-        void broadcast(std::string response);
+        void broadcast(std::string response, std::string usr);
         void print_msg(std::vector<std::string> str, user *user);
 		void print_history(user *user);
         void add_user(user *user, int mode);

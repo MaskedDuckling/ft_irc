@@ -474,7 +474,7 @@ void command::TOPIC()
                 {
                     it2->second->_topic.clear();
                     str = "\033[0;34mTopic has been clean for channel " + it2->second->_name +  " by " + _user->_nick + "\n\033[0m";
-                    it2->second->broadcast(str);
+                    it2->second->broadcast(str, "-1");
                     return ;
                 }
                 unsigned long i = 2;
@@ -485,7 +485,7 @@ void command::TOPIC()
                 }
                 it->second->_topic = str + "\033[0m\n";
                 str = "\033[0;34mTopic has been set for channel " + it2->second->_name +  " by " + _user->_nick + "\n\033[0m";
-                it2->second->broadcast(str);
+                it2->second->broadcast(str, "-1");
                 return ;
             }
         }
@@ -520,7 +520,7 @@ void command::PART()
                     std::string str = "\033[0;34m";
                     str += _user->_nick;
                     str += " has left the channel\033[0m\n";
-                    at->second->broadcast(str);
+                    at->second->broadcast(str, "-1");
                     at->second->delete_user(_user);
                     _user->_channels.erase(at);
 					return ;
@@ -549,7 +549,7 @@ void command::KICK()
 						str += " has been kicked from the channel ";
 						str += it2->first;
 						str += "\033[0m\n";
-						it2->second->broadcast(str);			/*	Notifie les users du channel du kick	*/
+						it2->second->broadcast(str, "-1");			/*	Notifie les users du channel du kick	*/
 						it2->second->delete_user(it->second); /*	Supprime l'user de la liste du channel	*/
 						it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
 						return;
@@ -578,7 +578,7 @@ void command::KICK()
 						str += " cause : ";
 						str += com;
 						str += "\033[0m\n";
-						it2->second->broadcast(str);			/*	Notifie les users du channel du kick	*/
+						it2->second->broadcast(str, "-1");			/*	Notifie les users du channel du kick	*/
 						it2->second->delete_user(it->second); /*	Supprime l'user de la liste du channel	*/
 						it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
 						return;
@@ -706,7 +706,7 @@ void command::PRIVMSG()
                 str += " ";
             }
             str += "\033[0m\n";  
-            it->second->broadcast(str);
+            it->second->broadcast(str, _user->_nick);
             return ;
         }
     }
