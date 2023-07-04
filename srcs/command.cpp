@@ -325,7 +325,7 @@ void command::MODE()
 									return ;
 								}
 							}
-							if (it->second->isModeSet(_command[2][0]) == 1)
+							if (it->second->isModeSet(_command[2][0]) == 1 && _command[2][0] != 'l')
 							{
 								
 							}

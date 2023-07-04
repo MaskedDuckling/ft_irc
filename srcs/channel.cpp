@@ -93,8 +93,8 @@ void channel::print_history(user *user)
 
 void channel::addMode(char c, std::string param)
 {
-	if (c == 'l')
-		setLimit(atoi(param.c_str()));
+/*	if (c == 'l')
+		setLimit(atoi(param.c_str()));*/
 	if (c == 'k')
 		setKey(param);
 	if (c == 'o')
@@ -110,6 +110,11 @@ void channel::addMode(char c, std::string param)
 	}
 	else
 	{
+		if (c == 'l')
+		{
+			deleteMode('l', param);
+			setLimit(atoi(param.c_str()));
+		}
 		_mode.push_back(c);
 	}
 }
