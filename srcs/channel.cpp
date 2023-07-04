@@ -13,6 +13,8 @@ channel::~channel(){
 
 void channel::add_user(user *user, int mode)
 {
+	if (_users.size() == 0)
+		add_operator(user);
     _users.push_back(user);
     _users.back()->_mode = 2;
 	user->_channels.insert(std::pair<std::string, channel *>(_name, this));

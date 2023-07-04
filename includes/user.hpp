@@ -35,6 +35,7 @@ class user{
 		std::vector<std::string> _chan_name;
 		std::string             _status;
 		std::string				_password;
+		std::string				_buffito;
 
 
 		user();
