@@ -212,7 +212,7 @@ void command::JOIN()
 			}
             if (_user->_channels.size() > 0)
             {
-                for (std::vector <user *>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it++)
+                for (std::vector <user *>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it2++)
                 {
                     if ((*it2)->_nick == _user->_nick)
                     {
@@ -536,6 +536,8 @@ void command::KICK()
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
 	if (_command.size() == 3)	 /*	KICK "channel" "USER"	*/
 	{
+		if (_command[1][0] == '#' || _command[1][0] == '&')
+			_command[1].erase(0, 1);
 		for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
 		{
 			if (it->second->_nick == _command[2])
@@ -562,6 +564,8 @@ void command::KICK()
 	}
 	else if (_command.size() > 3 && (_command[3].c_str()[0] == ':'))
 	{
+		if (_command[1][0] == '#' || _command[1][0] == '&')
+			_command[1].erase(0, 1);
 		std::string com = merge(_command, 4);
 		for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
 		{
@@ -589,6 +593,104 @@ void command::KICK()
 		}
 		return display_reply(ERR_NOSUCHNICK, _command[2].c_str());
 	}
+	else if (_command.size() > 3)
+	{
+		if (_command[2][0] == '#' || _command[2][0] == '&')
+		{
+			unsigned long int i = 1;
+			int chanN = 0;
+			int userN = 0;
+			while (i < _command.size())
+			{
+				if (_command[i][0] == '#' || _command[i][0] == '&')
+					chanN++;
+				else
+					break;
+				_command[i].erase(0, 1);
+				i++;
+			}
+			while (i < _command.size())
+			{
+				userN++;
+				i++;
+			}
+			if (chanN != userN)
+				return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+			while (chanN > 0)
+			{
+				int b = 0;
+				for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
+				{
+					if (it->second->_nick == _command[1 + chanN])
+					{
+						for (std::map<std::string, channel *>::iterator it2 = it->second->_channels.begin(); it2 != it->second->_channels.end(); it2++)
+						{
+							if (it2->first == _command[1])
+							{
+								it2->second->delete_user(it->second);	/*	Supprime l'user de la liste du channel		*/
+								it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
+								b = 1;
+								break ;
+							}
+						}
+						if (b == 0)
+						{
+							b = 2;
+							display_reply(ERR_USERNOTINCHANNEL, _command[1 + chanN].c_str(), _command[1].c_str());
+						}
+						break ;
+					}
+				}
+				if (b == 2)
+					display_reply(ERR_NOSUCHNICK, _command[1 + chanN].c_str());
+				_command.erase(_command.begin() + 1);
+				if (_command.size() >= 2)
+					_command.erase(_command.begin() + ((_command.size() - 1) - (chanN - 1)));
+				chanN--;
+			}
+		}
+		else
+		{
+			unsigned long int i = 2;
+			int userN = 0;
+			while (i < _command.size())
+			{
+				userN++;
+				i++;
+			}
+			while (userN > 0)
+			{
+				int b = 0;
+				for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
+				{
+					if (it->second->_nick == _command[2])
+					{
+						for (std::map<std::string, channel *>::iterator it2 = it->second->_channels.begin(); it2 != it->second->_channels.end(); it2++)
+						{
+							if (it2->first == _command[1])
+							{
+								it2->second->delete_user(it->second);	/*	Supprime l'user de la liste du channel		*/
+								it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
+								b = 1;
+								break ;
+							}
+						}
+						if (b == 0)
+						{
+							b = 2;
+							display_reply(ERR_USERNOTINCHANNEL, _command[2].c_str(), _command[1].c_str());
+						}
+						break ;
+					}
+				}
+				if (b == 2)
+					display_reply(ERR_NOSUCHNICK, _command[2].c_str());
+				_command.erase(_command.begin() + 2);
+				userN--;
+			}
+		}
+	}
+	return ;
 }
 
 void command::INVITE()
