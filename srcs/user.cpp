@@ -110,16 +110,13 @@ int user::deleteUserMode(char newMode){
 }
 
 void user::parse_commands(std::string message){
-    std::cout << (_buffito + message) << std::endl;
-    message = _buffito + message;
-    _buffito = "";
     while (message.find("\r\n") != std::string::npos)
     {
         _commands.push_back(new command(message.substr(0, message.find("\r\n")), this));
         message = message.substr(message.find("\r\n")+2);
     }
     if (message.size() > 0)
-        _buffito = message;
+        _commands.push_back(new command(message, this));
 }
 
 void user::execute_commands(){
@@ -136,6 +133,6 @@ void clear_terminal(int fd)
 
     message = "\x1B[2J\x1B[H";
     send(fd, message.c_str(), message.size(), 0);
-    message = "\033[0;33mHello, Please enter the password with \033[0mPASS \"PASSWORLD\" \033[0;33m: \n\033[0m";
-    send(fd, message.c_str(), message.size(), 0);
+    /*message = "\033[0;33mHello, Please enter the password with \033[0mPASS \"PASSWORLD\" \033[0;33m: \n\033[0m";
+    send(fd, message.c_str(), message.size(), 0);*/
 }
