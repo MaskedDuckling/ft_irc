@@ -99,9 +99,14 @@ void channel::addMode(char c, std::string param)
 		setKey(param);
 	if (c == 'o')
 	{
-		for (std::vector<user *>::iterator it = _operators.begin(); it != _operators.end(); it++)
+		for (std::vector<user *>::iterator it = _users.begin(); it != _users.end(); it++)
+		{
 			if ((*it)->_nick == param)
+			{
 				add_operator(*it);
+				return ;
+			}
+		}
 	}
 	else
 	{
