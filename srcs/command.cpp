@@ -4,6 +4,8 @@
 #include <netinet/in.h>
 #include <arpa/inet.h>
 
+#include <stdarg.h>
+
 std::map<std::string, void (command::*)()> command::_map_fonction;
 
 ////////////        	  constructor         //
@@ -50,7 +52,7 @@ void command::execute(){
         std::cout << "No command to execute" << std::endl;
         return ;
     }
-    //std::cout << "Executing command: " << *this << std::endl;
+    std::cout << "Executing command: " << *this << std::endl;
 
     if (_map_fonction.find(_command[0]) != _map_fonction.end())
             (this->*_map_fonction[_command[0]])();
@@ -71,23 +73,52 @@ void command::execute(){
         std::cout << "Command not found" << std::endl;
 }
 
-void command::display_reply(std::string reply, ...){        /*Probablement erreur ici*/
-    std::string message;
-    va_list arg_list;
-    va_start(arg_list,reply);
-    for (std::string::iterator it = reply.begin() ; it != reply.end(); it++){
-        if (*it!='<')
-            message += *it;
-        else{
-            while (it != reply.end() && *it != '>')
-                it++;
-            message += va_arg(arg_list, char *);
-        }
-    }
-    message += "\r\n";
-    //std::cout << message;
+// void command::display_reply(std::string reply, ...){        /*Probablement erreur ici*/
+//     std::string message;
+//     va_list arg_list;
+//     va_start(arg_list,reply);
+//     for (std::string::iterator it = reply.begin() ; it != reply.end(); it++){
+//         if (*it!='<')
+//             message += *it;
+//         else{
+//             while (it != reply.end() && *it != '>')
+//                 it++;
+//             message += va_arg(arg_list, char *);
+//         }
+//     }
+//     message += "\r\n";
+//     //std::cout << message;
+//     send(_user->_fd, message.c_str(), message.size(), 0);
+//     va_end(arg_list);
+// }
+
+void command::display_reply(std::string msg, ...){        /*Probablement erreur ici*/
+    // send(_user->_fd, "FUCK", 4, 0);
+    va_list vl;
+	std::string dest_nick = _user->_nick;
+
+	if (dest_nick == "")
+		dest_nick = "*";
+	std::string	message(":" + _user->_serv->_name + " " + msg.substr(0, 4) + dest_nick +" ");
+	size_t i = 4;
+
+	va_start(vl, msg);
+	while (i < msg.length())
+	{
+		if (msg[i] != '<')
+			message += msg[i];
+		else
+		{
+			while (msg[i] != '>')
+				i++;
+			message += va_arg(vl, char*);
+		}
+		i++;
+	}
+	message += "\n";
+	std::cout << message;
     send(_user->_fd, message.c_str(), message.size(), 0);
-    va_end(arg_list);
+    va_end(vl);
 }
 
 void command::init_func_map()
@@ -115,8 +146,6 @@ void command::init_func_map()
     _map_fonction.insert(std::make_pair("PONG",&command::PONG));
 }
 
-
-
 //				command fonction	for log			//
 
 void command::PASS(){
@@ -138,7 +167,7 @@ void command::USER(){
     _user->_realname = _command[1];
     if (_user->_nick != ""){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
-        display_reply(CLEAR_TERM);
+        // display_reply(CLEAR_TERM);
         display_reply(RPL_WELCOME, _user->_nick.c_str(), _user->_realname.c_str(), tmp.c_str());
 		display_reply(RPL_YOURHOST, _user->_serv->_name.c_str(), "1.0");
 		display_reply(RPL_CREATED, "today");
@@ -815,7 +844,6 @@ void command::PRIVMSG()
         }
     }
 }
-
 
 void command::PING(){
     std::string reply = "PONG : ";

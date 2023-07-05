@@ -6,7 +6,7 @@ user::user(){
 user::user(int fd, sockaddr_in address, serveur *serv):_address(address), _fd(fd), _serv(serv), _mode(""), _status("Unknown"){
     (void)_fd;
     (void)_address;
-    clear_terminal(fd);
+    // clear_terminal(fd);
 }
 
 user::~user(){
@@ -110,13 +110,15 @@ int user::deleteUserMode(char newMode){
 }
 
 void user::parse_commands(std::string message){
+    message = _buffito + message;
+    _buffito = "";
     while (message.find("\r\n") != std::string::npos)
     {
         _commands.push_back(new command(message.substr(0, message.find("\r\n")), this));
         message = message.substr(message.find("\r\n")+2);
     }
     if (message.size() > 0)
-        _commands.push_back(new command(message, this));
+        _buffito = message;
 }
 
 void user::execute_commands(){
