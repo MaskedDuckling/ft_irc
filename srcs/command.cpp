@@ -191,7 +191,7 @@ void command::NICK(){
     //display_reply("\n\033[0;32mNickname register !\n\033[0m\033[0;33mPlease enter your username with \033[0mUSER \"username\" \"mode\" \"unused\" \"realname\" \033[0;33m: \033[0m");
     if (_user->_realname != ""){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
-        display_reply(CLEAR_TERM);
+    //    display_reply(CLEAR_TERM);
         display_reply(RPL_WELCOME, _user->_nick.c_str(), _user->_realname.c_str(), tmp.c_str());
 		display_reply(RPL_YOURHOST, _user->_serv->_name.c_str(), "1.0");
 		display_reply(RPL_CREATED, "today");
@@ -245,7 +245,7 @@ void command::JOIN()
                 {
                     if ((*it2)->_nick == _user->_nick)
                     {
-                        display_reply(CLEAR_TERM);
+                        //display_reply(CLEAR_TERM);
                         it->second->print_history(_user);
                         for (std::vector <std::string>::iterator chan = _user->_chan_name.begin(); chan != _user->_chan_name.end(); chan++)
                         {
@@ -261,12 +261,12 @@ void command::JOIN()
                     }
                 }
             }
-            display_reply(CLEAR_TERM);
+            //display_reply(CLEAR_TERM);
             it->second->add_user(_user, 1);
             return ;
         }
     }
-    display_reply(CLEAR_TERM);
+    //display_reply(CLEAR_TERM);
     _user->_serv->_channels[_command[1]] = new channel(_command[1], _user, _user->_serv);
 }
 
@@ -575,11 +575,12 @@ void command::KICK()
 				{
 					if (it2->first == _command[1])
 					{
-						std::string str = "\033[0;34m";
-						str += it->second->_nick;
-						str += " has been kicked from the channel ";
-						str += it2->first;
-						str += "\033[0m\n";
+						//std::string str = "\033[0;34m";
+						std::string str = _command[0] + " " + _command[1] + " " + _command[2];
+						//str += it->second->_nick;
+						//str += " has been kicked from the channel ";
+						//str += it2->first;
+						//str += "\033[0m\n";
 						it2->second->broadcast(str, "-1");			/*	Notifie les users du channel du kick	*/
 						it2->second->delete_user(it->second); /*	Supprime l'user de la liste du channel	*/
 						it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
@@ -809,10 +810,12 @@ void command::INVITE()
     std::string str = "\x1B[2J\x1B[H";
     send(it->second->_fd, str.c_str(), str.size(), 0);
     it2->second->print_history(it->second);
-    str = "\033[0;34mYou have been invite to join the channel " + it2->first + "\033[0m\n";
+    str = "You have been invited to join the channel " + it2->first + "\n";
     send(it->second->_fd, str.c_str(), str.size(), 0);
-    str = "\033[0;34mYou invite " + it->second->_nick + " to join the channel " + it2->first + "\033[0m\n";
-    send(_user->_fd, str.c_str(), str.size(), 0);
+    str = "You invite " + it->second->_nick + " to join the channel " + it2->first + "\n";
+	display_reply(RPL_INVITING, _command[1].c_str(), _command[2].c_str());
+	display_reply(str.c_str());
+    //send(_user->_fd, str.c_str(), str.size(), 0);
 }
 
 void command::PRIVMSG()
