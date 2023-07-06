@@ -93,7 +93,6 @@ void command::execute(){
 // }
 
 void command::display_reply(std::string msg, ...){        /*Probablement erreur ici*/
-    // send(_user->_fd, "FUCK", 4, 0);
     va_list vl;
 	std::string dest_nick = _user->_nick;
 
@@ -117,6 +116,7 @@ void command::display_reply(std::string msg, ...){        /*Probablement erreur 
 	}
 	message += "\n";
 	std::cout << message;
+	std::cout << "MESSAGE " << message << std::endl;
     send(_user->_fd, message.c_str(), message.size(), 0);
     va_end(vl);
 }
@@ -157,7 +157,6 @@ void command::PASS(){
         return display_reply(ERR_PASSWDMISMATCH);
     _user->_status = "Registered";
     _user->_password = _command[1];
-    //display_reply("\n\033[0;32mPassword correct !\n\033[0m\033[0;33mPlease enter your nickname with \033[0mNICK \"NAME\" \033[0;33m: \033[0m");
 }
 void command::USER(){
     if (_command.size() < 5)
@@ -165,9 +164,8 @@ void command::USER(){
     if (_user->_status != "Registered")
         return display_reply(ERR_ALREADYREGISTRED);
     _user->_realname = _command[1];
-    if (_user->_nick != ""){
+    if (_user->_nick != "" && _user->_status != "Connected"){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
-        // display_reply(CLEAR_TERM);
         display_reply(RPL_WELCOME, _user->_nick.c_str(), _user->_realname.c_str(), tmp.c_str());
 		display_reply(RPL_YOURHOST, _user->_serv->_name.c_str(), "1.0");
 		display_reply(RPL_CREATED, "today");
@@ -183,15 +181,9 @@ void command::NICK(){
     for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
         if (it->second->_nick == _command[1])
             return display_reply(ERR_NICKNAMEINUSE, _command[1].c_str());
-    // if (kekchose)
-    //     return display_reply(ERR_ERRONEUSNICKNAME, _command[1].c_str());
-    // if (kekchose d'autre)
-    //     return display_reply(ERR_UNAVAILRESOURCE, _command[1].c_str());
     _user->_nick = _command[1];
-    //display_reply("\n\033[0;32mNickname register !\n\033[0m\033[0;33mPlease enter your username with \033[0mUSER \"username\" \"mode\" \"unused\" \"realname\" \033[0;33m: \033[0m");
-    if (_user->_realname != ""){
+    if (_user->_realname != "" && _user->_status != "Connected"){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
-        display_reply(CLEAR_TERM);
         display_reply(RPL_WELCOME, _user->_nick.c_str(), _user->_realname.c_str(), tmp.c_str());
 		display_reply(RPL_YOURHOST, _user->_serv->_name.c_str(), "1.0");
 		display_reply(RPL_CREATED, "today");
@@ -245,7 +237,6 @@ void command::JOIN()
                 {
                     if ((*it2)->_nick == _user->_nick)
                     {
-                        display_reply(CLEAR_TERM);
                         it->second->print_history(_user);
                         for (std::vector <std::string>::iterator chan = _user->_chan_name.begin(); chan != _user->_chan_name.end(); chan++)
                         {
@@ -261,12 +252,10 @@ void command::JOIN()
                     }
                 }
             }
-            display_reply(CLEAR_TERM);
             it->second->add_user(_user, 1);
             return ;
         }
     }
-    display_reply(CLEAR_TERM);
     _user->_serv->_channels[_command[1]] = new channel(_command[1], _user, _user->_serv);
 }
 
@@ -487,7 +476,7 @@ void command::TOPIC()
 						while (user != it2->second->_users.end() && (*user)->_nick != _user->_nick)
                             user++;
                         if (user == it2->second->_users.end())
-                            return display_reply("\033[0;31mNo channel joined\033[0m");
+                            return display_reply("\033[0;31mNfo channel joined\033[0m");
                         if (it->second->checkOper(_user->_nick) == 0)
 			            {
 				            if (_user->_mode.find('o') == std::string::npos)
@@ -800,6 +789,7 @@ void command::PRIVMSG()
 {
     if (_command.size() < 3)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+	
     for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
     {
         if (it->second->_nick == _command[1])
@@ -807,11 +797,11 @@ void command::PRIVMSG()
             std::string str;
             if (it->second->_mode.find("a") != std::string::npos)
             {
-                str = "\033[0;31mUser " + it->second->_nick + " is away\033[0m\n";
+                str = "User " + it->second->_nick + " is away\n";
                 send(it->second->_fd, str.c_str(), str.size(), 0);
                 return ;
             }
-            str = "\033[0;35m";
+            str = "";
             unsigned long i = 2;
             str += _user->_nick;
             str += " : ";
@@ -820,7 +810,7 @@ void command::PRIVMSG()
                 str += _command[i++];
                 str += " ";
             }
-            str += "\033[0m\n";
+            str += "\n";
             send(it->second->_fd, str.c_str(), str.size(), 0);
             return ;
         }
@@ -829,16 +819,16 @@ void command::PRIVMSG()
     {
         if (it->first == _command[1])
         {
-            std::string str = "\033[0;34m#" + it->first + " ";
+            std::string str = ":" + _user->_nick + " PRIVMSG " + _command[1] + " ";
             unsigned long i = 2;
-            str += _user->_nick;
-            str += " : ";
+            // str += _user->_nick;
+            // str += " : ";
             while (i < _command.size())
             {
                 str += _command[i++];
                 str += " ";
             }
-            str += "\033[0m\n";  
+            str += "\n";  
             it->second->broadcast(str, _user->_nick);
             return ;
         }
