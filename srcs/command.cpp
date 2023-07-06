@@ -535,9 +535,13 @@ void command::PART()
             {
                 if (at->first == _command[1])
                 {
-                    std::string str = "\033[0;34m";
-                    str += _user->_nick;
-                    str += " has left the channel\033[0m\n";
+                    std::string str = ":" + _user->_nick + " PART " + _command[1] + " ";
+					unsigned long i = 2;
+					while (i < _command.size()){
+						str += _command[i++];
+						str += " ";
+					}
+					str += "\n";
                     at->second->broadcast(str, "-1");
                     at->second->delete_user(_user);
                     _user->_channels.erase(at);
@@ -564,12 +568,24 @@ void command::KICK()
 				{
 					if (it2->first == _command[1])
 					{
+
+
+
+
+
+						
 						std::string str = "\033[0;34m";
 						str += it->second->_nick;
 						str += " has been kicked from the channel ";
 						str += it2->first;
 						str += "\033[0m\n";
 						it2->second->broadcast(str, "-1");			/*	Notifie les users du channel du kick	*/
+
+
+
+
+
+
 						it2->second->delete_user(it->second); /*	Supprime l'user de la liste du channel	*/
 						it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
 						return;
