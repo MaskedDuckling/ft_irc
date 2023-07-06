@@ -568,17 +568,12 @@ void command::KICK()
 				{
 					if (it2->first == _command[1])
 					{
-
-
-
-
-
-						
-						std::string str = "\033[0;34m";
-						str += it->second->_nick;
-						str += " has been kicked from the channel ";
-						str += it2->first;
-						str += "\033[0m\n";
+						//std::string str = "\033[0;34m";
+						std::string str = _command[0] + " " + _command[1] + " " + _command[2];
+						//str += it->second->_nick;
+						//str += " has been kicked from the channel ";
+						//str += it2->first;
+						//str += "\033[0m\n";
 						it2->second->broadcast(str, "-1");			/*	Notifie les users du channel du kick	*/
 
 
@@ -814,10 +809,12 @@ void command::INVITE()
     std::string str = "\x1B[2J\x1B[H";
     send(it->second->_fd, str.c_str(), str.size(), 0);
     it2->second->print_history(it->second);
-    str = "\033[0;34mYou have been invite to join the channel " + it2->first + "\033[0m\n";
+    str = "You have been invited to join the channel " + it2->first + "\n";
     send(it->second->_fd, str.c_str(), str.size(), 0);
-    str = "\033[0;34mYou invite " + it->second->_nick + " to join the channel " + it2->first + "\033[0m\n";
-    send(_user->_fd, str.c_str(), str.size(), 0);
+    str = "You invite " + it->second->_nick + " to join the channel " + it2->first + "\n";
+	display_reply(RPL_INVITING, _command[1].c_str(), _command[2].c_str());
+	display_reply(str.c_str());
+    //send(_user->_fd, str.c_str(), str.size(), 0);
 }
 
 void command::PRIVMSG()
