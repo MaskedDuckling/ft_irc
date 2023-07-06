@@ -33,6 +33,8 @@ fclean: clean
 
 re: fclean all
 
+po: all clean
+
 .PHONY: all clean fclean re
 
 .SILENT: $(OBJS)

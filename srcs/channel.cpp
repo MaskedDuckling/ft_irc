@@ -51,6 +51,8 @@ void channel::delete_user(user *name)
 }
 
 void channel::broadcast(std::string response, std::string usr){
+	// response = "PRIVMSG " + response;
+	std::cout << "broadcast " << response << std::endl;
     for (std::vector <user *>::iterator it = _users.begin(); it != _users.end(); it++)
 	{
 		if (usr != (*it)->_nick)
