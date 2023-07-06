@@ -565,8 +565,8 @@ void command::KICK()
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
 	if (_command.size() == 3)	 /*	KICK "channel" "USER"	*/
 	{
-		if (_command[1][0] == '#' || _command[1][0] == '&')
-			_command[1].erase(0, 1);
+		/*if (_command[1][0] == '#' || _command[1][0] == '&')
+			_command[1].erase(0, 1);*/
 		for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
 		{
 			if (it->second->_nick == _command[2])
@@ -593,8 +593,8 @@ void command::KICK()
 	}
 	else if (_command.size() > 3 && (_command[3].c_str()[0] == ':'))
 	{
-		if (_command[1][0] == '#' || _command[1][0] == '&')
-			_command[1].erase(0, 1);
+		/*if (_command[1][0] == '#' || _command[1][0] == '&')
+			_command[1].erase(0, 1);*/
 		std::string com = merge(_command, 4);
 		for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
 		{
@@ -635,7 +635,7 @@ void command::KICK()
 					chanN++;
 				else
 					break;
-				_command[i].erase(0, 1);
+				//_command[i].erase(0, 1);
 				i++;
 			}
 			while (i < _command.size())
@@ -682,8 +682,8 @@ void command::KICK()
 		{
 			unsigned long int i = 2;
 			int userN = 0;
-			if (_command[1][0] == '#' || _command[1][0] == '&')
-				_command[1].erase(0, 1);
+			/*if (_command[1][0] == '#' || _command[1][0] == '&')
+				_command[1].erase(0, 1);*/
 			while (i < _command.size())
 			{
 				userN++;
@@ -728,8 +728,8 @@ void command::INVITE()
 {
     if (_command.size() < 3)
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-    if (_user->_mode.find('o') == std::string::npos)
-        return display_reply("Need to be operator tu use this command");
+/*    if (_user->_mode.find('o') == std::string::npos)
+        return display_reply("Need to be operator tu use this command");*/
     std::map<int, user *>::iterator it = _user->_serv->_users.begin();
     if (it == _user->_serv->_users.end())
     {
@@ -764,6 +764,25 @@ void command::INVITE()
     {
         return ;
     }
+	if (it2->second->isModeSet('i'))
+	{
+		int op = 0;
+		for (std::vector<user *>::iterator it3 = it2->second->_operators.begin(); it3 != it2->second->_operators.end(); it3++)
+		{
+			if ((*it3)->_nick == _user->_nick)
+			{
+				op = 1;
+				break ;
+			}
+			if (_user->_mode.find('o') != std::string::npos)
+			{
+				op = 1;
+				break ;
+			}
+		}
+		if (op == 0)
+			return display_reply("Need to be operator tu use this command");
+	}
     std::vector <user *>::iterator _use = it2->second->_users.begin();
     while (_use != it2->second->_users.end())
     {
