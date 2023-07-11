@@ -14,6 +14,7 @@
 # include <string.h>
 # include "user.hpp"
 # include "channel.hpp"
+# include "utils.hpp"
 
 # define BUFF_SIZE 1024
 // class user;

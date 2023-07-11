@@ -41,6 +41,7 @@ class channel{
 
 		void addMode(char c, std::string param);
 		void deleteMode(char mode, std::string param);
+		int getMode(char c);
 		void setLimit(int limit);
 		void removeLimit();
 		unsigned int getNbUsers();

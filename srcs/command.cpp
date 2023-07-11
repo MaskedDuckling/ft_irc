@@ -57,42 +57,12 @@ void command::execute(){
     if (_map_fonction.find(_command[0]) != _map_fonction.end())
             (this->*_map_fonction[_command[0]])();
     else if (_command[0] == "CAP"){}
-    else if (_user->_channels.size() > 0)
-    {
-		std::string str = _user->_chan_name.back();
-        for (std::map<std::string, channel *>::iterator _chan = _user->_channels.begin(); _chan != _user->_channels.end(); _chan++)
-        {
-            if (str == _chan->first)
-            {
-                _chan->second->print_msg(_command, _user);
-                return ;
-            }
-        }
-    }
+    // else if (_user->_channels.size() > 0){}
     else
         std::cout << "Command not found" << std::endl;
 }
 
-// void command::display_reply(std::string reply, ...){        /*Probablement erreur ici*/
-//     std::string message;
-//     va_list arg_list;
-//     va_start(arg_list,reply);
-//     for (std::string::iterator it = reply.begin() ; it != reply.end(); it++){
-//         if (*it!='<')
-//             message += *it;
-//         else{
-//             while (it != reply.end() && *it != '>')
-//                 it++;
-//             message += va_arg(arg_list, char *);
-//         }
-//     }
-//     message += "\r\n";
-//     //std::cout << message;
-//     send(_user->_fd, message.c_str(), message.size(), 0);
-//     va_end(arg_list);
-// }
-
-void command::display_reply(std::string msg, ...){        /*Probablement erreur ici*/
+void command::display_reply(std::string msg, ...){
     va_list vl;
 	std::string dest_nick = _user->_nick;
 
@@ -115,8 +85,6 @@ void command::display_reply(std::string msg, ...){        /*Probablement erreur 
 		i++;
 	}
 	message += "\n";
-	std::cout << message;
-	std::cout << "MESSAGE " << message << std::endl;
     send(_user->_fd, message.c_str(), message.size(), 0);
     va_end(vl);
 }
@@ -200,58 +168,34 @@ void command::NICK(){
 void command::JOIN()
 {
     if (_command.size() < 2)
-        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());                                                                                                            //A peut etre modifier
+        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());                                                           //A peut etre modifier
     for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
     {
         if (it->first == _command[1])
         {
-            for (std::vector<char>::iterator it2 = it->second->_mode.begin(); it2 != it->second->_mode.end(); it2++)
+			if (it->second->getMode('i') == 1)
 			{
-				if (*it2 == 'i')
+				display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
+				return ;
+			}
+			else if (it->second->_limit > -1 && it->second->_limit <= (int)it->second->_users.size())
+			{
+				display_reply(ERR_CHANNELISFULL, _command[1].c_str());
+				return ;
+			}
+			else if (it->second->getMode('k') == 1)
+			{
+				if (_command.size() < 3)
 				{
-					display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
+					display_reply(ERR_PASSWDMISMATCH);
 					return ;
 				}
-				else if (it->second->_limit > -1 && it->second->_limit <= (int)it->second->_users.size())
+				else if (it->second->_key != _command[2])
 				{
-					display_reply(ERR_CHANNELISFULL, _command[1].c_str());
+					display_reply(ERR_PASSWDMISMATCH);
 					return ;
-				}
-				else if (*it2 == 'k')
-				{
-					if (_command.size() < 3)
-					{
-						display_reply(ERR_PASSWDMISMATCH);
-						return ;
-					}
-					else if (it->second->_key != _command[2])
-					{
-						display_reply(ERR_PASSWDMISMATCH);
-						return ;
-					}
 				}
 			}
-            if (_user->_channels.size() > 0)
-            {
-                for (std::vector <user *>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it2++)
-                {
-                    if ((*it2)->_nick == _user->_nick)
-                    {
-                        it->second->print_history(_user);
-                        for (std::vector <std::string>::iterator chan = _user->_chan_name.begin(); chan != _user->_chan_name.end(); chan++)
-                        {
-                            if (*chan == it->first)
-                            {
-                                _user->_chan_name.push_back(it->first);
-                                std::string str = "\033[0;33mRecover chat from " + it->first + "\033[0m\n";
-                                send((*it2)->_fd, str.c_str(), str.size(), 0);
-                                return ;
-                            }
-                        }
-                        return ;
-                    }
-                }
-            }
             it->second->add_user(_user, 1);
             return ;
         }
@@ -525,30 +469,25 @@ void command::WHOIS(){
 
 void command::PART()
 {
-    if (_command.size() < 2)
-        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-    for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
-    {
-        if (it->first == _command[1])
-        {
-            for (std::map<std::string, channel *>::iterator at = _user->_channels.begin(); at != _user->_channels.end(); at++)
-            {
-                if (at->first == _command[1])
-                {
-                    std::string str = ":" + _user->_nick + " PART " + _command[1] + " ";
-					unsigned long i = 2;
-					while (i < _command.size()){
-						str += _command[i++];
-						str += " ";
-					}
-					str += "\n";
-                    at->second->broadcast(str, "-1");
-                    at->second->delete_user(_user);
-                    _user->_channels.erase(at);
-					return ;
-                }
-            }
-        }
+    if (_command.size() < 2){
+        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());}
+	for (std::map<std::string, channel *>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++)
+	{
+		if (it->first == _command[1])
+		{
+			std::string str = ":" + _user->_nick + " PART " + _command[1] + " ";
+			unsigned long i = 2;
+			while (i < _command.size()){
+				str += _command[i++];
+				str += " ";
+			}
+			str += "\r\n";
+			send(_user->_fd, str.c_str(), str.size(), 0);
+
+			it->second->delete_user(_user);
+			_user->_channels.erase(it);
+			return ;
+		}
     }
 }
 
@@ -568,13 +507,9 @@ void command::KICK()
 				{
 					if (it2->first == _command[1])
 					{
-						//std::string str = "\033[0;34m";
-						std::string str = _command[0] + " " + _command[1] + " " + _command[2];
-						//str += it->second->_nick;
-						//str += " has been kicked from the channel ";
-						//str += it2->first;
-						//str += "\033[0m\n";
-						it2->second->broadcast(str, "-1");			/*	Notifie les users du channel du kick	*/
+						std::string str = ":" + _user->_nick + " KICK " + _command[1] + " " + _command[2] + "\r\n"; 
+						send(it->second->_fd, str.c_str(), str.size(), 0);	/*	Notifie l'user du kick	*/
+						// it2->second->broadcast(str, "-1");			/*	Notifie les users du channel du kick	*/
 
 
 
@@ -853,14 +788,12 @@ void command::PRIVMSG()
         {
             std::string str = ":" + _user->_nick + " PRIVMSG " + _command[1] + " ";
             unsigned long i = 2;
-            // str += _user->_nick;
-            // str += " : ";
             while (i < _command.size())
             {
                 str += _command[i++];
                 str += " ";
             }
-            str += "\n";  
+            str += "\r\n";  
             it->second->broadcast(str, _user->_nick);
             return ;
         }
@@ -872,14 +805,16 @@ void command::PING(){
     if (_command.size() < 2)
         return display_reply(ERR_NOORIGIN);
     reply += _user->_serv->_name.c_str();
-    return display_reply(reply);
+	send(_user->_fd, reply.c_str(), reply.size(), 0);
+	// std::cout << "PONG " << _user->_serv->_name.c_str() << std::endl;
+    // return display_reply(reply);
 }
+
 void command::PONG(){
+
     if (_command.size() < 2)
         return display_reply(ERR_NOORIGIN);
 }
-
-
 
 std::ostream &operator<<(std::ostream &o, command &rhs){
     for(std::vector<std::string>::iterator it = rhs._command.begin(); it != rhs._command.end(); it++){
