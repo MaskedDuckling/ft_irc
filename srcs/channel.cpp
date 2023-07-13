@@ -24,6 +24,7 @@ void channel::add_user(user *user, int mode)
 	if (mode == 1)
     {
 		std::string str = ":" + user->_nick + " JOIN " + _name + "\r\n";
+		std::cout << str << std::endl;
 		send(user->_fd, str.c_str(), str.size(), 0);
 
 		if (_history.size() > 20)
@@ -32,18 +33,20 @@ void channel::add_user(user *user, int mode)
 	}
 }
 
-void channel::delete_user(user *name)
+void channel::delete_user(std::string nick)
 {
-    for (std::vector<user *>::iterator it = _users.begin(); it != _users.end(); it++)
-    {
-        if ((*it)->_nick == name->_nick)
-        {
-            std::vector<user *>::iterator at = it;
-            at++;
-            _users.erase(it, at);
-            return ;
-        }
-    }
+	for (std::vector<user *>::iterator it = _users.begin(); it != _users.end(); it++)
+	{
+		if ((*it)->_nick == nick)
+		{
+			std::vector<user *>::iterator at = it;
+			at++;
+			_users.erase(it, at);
+			return ;
+		}
+	}
+	if (_users.size() == 0)
+		_serv->_channels.erase(_name);
 }
 
 void channel::broadcast(std::string response, std::string usr){

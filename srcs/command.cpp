@@ -85,6 +85,7 @@ void command::display_reply(std::string msg, ...){
 		i++;
 	}
 	message += "\n";
+	std::cout << "|" << message << "|" << std::endl;
     send(_user->_fd, message.c_str(), message.size(), 0);
     va_end(vl);
 }
@@ -204,6 +205,32 @@ void command::JOIN()
 }
 
 
+void command::PART()
+{
+    if (_command.size() < 2){
+        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());}
+	for (std::map<std::string, channel *>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++)
+	{
+		if (it->first == _command[1])
+		{
+			std::string str = ":" + _user->_nick + " PART " + _command[1] + " ";
+			unsigned long i = 2;
+			while (i < _command.size()){
+				str += _command[i++];
+				str += " ";
+			}
+			str += "\r\n";
+			std::cout << "|" << str << "|" << std::endl;
+			send(_user->_fd, str.c_str(), str.size(), 0);
+
+			it->second->delete_user(_user->_nick);
+			_user->_channels.erase(it);
+			return ;
+		}
+    }
+}
+
+
 void command::OPER()
 {
     if (_command.size() < 3)
@@ -228,11 +255,6 @@ void command::OPER()
     return display_reply(RPL_YOUREOPER);
 }
 
-/**
- * @brief Pour le mode o (operateur) ajouter la necessiter d'etre OPER pour l'utiliser
- * et check que l'user target de o existe
- * 
- */
 
 void command::MODE()
 {	
@@ -464,33 +486,6 @@ void command::WHOIS(){
 }
 
 
-
-
-
-void command::PART()
-{
-    if (_command.size() < 2){
-        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());}
-	for (std::map<std::string, channel *>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++)
-	{
-		if (it->first == _command[1])
-		{
-			std::string str = ":" + _user->_nick + " PART " + _command[1] + " ";
-			unsigned long i = 2;
-			while (i < _command.size()){
-				str += _command[i++];
-				str += " ";
-			}
-			str += "\r\n";
-			send(_user->_fd, str.c_str(), str.size(), 0);
-
-			it->second->delete_user(_user);
-			_user->_channels.erase(it);
-			return ;
-		}
-    }
-}
-
 void command::KICK()
 {
 	if (_command.size() < 3)
@@ -516,7 +511,7 @@ void command::KICK()
 
 
 
-						it2->second->delete_user(it->second); /*	Supprime l'user de la liste du channel	*/
+						it2->second->delete_user(it->second->_nick); /*	Supprime l'user de la liste du channel	*/
 						it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
 						return;
 					}
@@ -547,7 +542,7 @@ void command::KICK()
 						str += com;
 						str += "\033[0m\n";
 						it2->second->broadcast(str, "-1");			/*	Notifie les users du channel du kick	*/
-						it2->second->delete_user(it->second); /*	Supprime l'user de la liste du channel	*/
+						it2->second->delete_user(it->second->_nick); /*	Supprime l'user de la liste du channel	*/
 						it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
 						return;
 					}
@@ -591,7 +586,7 @@ void command::KICK()
 						{
 							if (it2->first == _command[1])
 							{
-								it2->second->delete_user(it->second);	/*	Supprime l'user de la liste du channel		*/
+								it2->second->delete_user(it->second->_nick);	/*	Supprime l'user de la liste du channel		*/
 								it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
 								b = 1;
 								break ;
@@ -635,7 +630,7 @@ void command::KICK()
 						{
 							if (it2->first == _command[1])
 							{
-								it2->second->delete_user(it->second);	/*	Supprime l'user de la liste du channel		*/
+								it2->second->delete_user(it->second->_nick);	/*	Supprime l'user de la liste du channel		*/
 								it->second->_channels.erase(it2);		/*	Supprime le channel de la liste de l'user	*/
 								b = 1;
 								break ;

@@ -34,7 +34,7 @@ class channel{
         void print_msg(std::vector<std::string> str, user *user);
 		void print_history(user *user);
         void add_user(user *user, int mode);
-        void delete_user(user *user);
+        void delete_user(std::string nick);
 		void add_operator(user *user);
 		void delete_operator(user *user);
         void list_users();
