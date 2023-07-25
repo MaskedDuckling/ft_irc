@@ -19,9 +19,12 @@ void channel::add_user(user *user, int mode)
 	user->_chan_name.push_back(_name);
 	if (mode == 1)
     {
-		std::string str = ":" + user->_nick + " JOIN " + _name + "\r\n";
-		std::cout << str << std::endl;
-		broadcast(str, "");
+		std::string str = ":" + user->_nick + "!" + _serv->_name + "@localhost" + " JOIN " + _name + "\r\n";
+		// if (_users.size() == 1)
+			broadcast(str, "");
+		// else
+			// broadcast(str, user->_nick);
+		list_users();
 	}
 }
 
@@ -34,6 +37,7 @@ void channel::delete_user(std::string nick)
 			std::vector<user *>::iterator at = it;
 			at++;
 			_users.erase(it, at);
+			list_users();
 			return ;
 		}
 	}
@@ -42,14 +46,12 @@ void channel::delete_user(std::string nick)
 }
 
 void channel::broadcast(std::string response, std::string usr){
-	std::cout << "broadcast |" << response << "|" <<std::endl;
     for (std::vector <user *>::iterator it = _users.begin(); it != _users.end(); it++)
 	{
-		if (usr == ""){
-			send((*it)->_fd, response.c_str(), response.size(), 0);
-		}
-		else if (usr != (*it)->_nick)
+		if (usr != (*it)->_nick){
+			std::cout << "broadcasting to " << (*it)->_nick << " " << response << std::endl;
         	send((*it)->_fd, response.c_str(), response.size(), 0);
+		}
 	}
 }
 

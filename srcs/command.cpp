@@ -13,7 +13,6 @@ std::map<std::string, void (command::*)()> command::_map_fonction;
 
 command::command()
 {
-
 }
 
 command::command(std::string message, user *user):_user(user)
@@ -47,7 +46,6 @@ command::~command()
 //				utility fonction			//
 
 void command::execute(){
-	init_func_map();
     if (!_command.size()){
         std::cout << "No command to execute" << std::endl;
         return ;
@@ -150,7 +148,8 @@ void command::NICK(){
     for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
         if (it->second->_nick == _command[1])
             return display_reply(ERR_NICKNAMEINUSE, _command[1].c_str());
-    _user->_nick = _command[1];
+    std::string oldnick = _user->_nick;
+	_user->_nick = _command[1];
     if (_user->_realname != "" && _user->_status != "Connected"){
         std::string tmp = inet_ntoa(_user->_address.sin_addr);
         display_reply(RPL_WELCOME, _user->_nick.c_str(), _user->_realname.c_str(), tmp.c_str());
@@ -159,6 +158,11 @@ void command::NICK(){
 		display_reply(RPL_MYINFO, _user->_serv->_name.c_str(), "1.0", "*", "*");
         _user->_status = "Connected";
     }
+	else if (_user->_status == "Connected"){
+		std::string reply = ":" + oldnick + " NICK " + _command[1] + "\r\n";
+		std::cout << reply << std::endl;
+		send(_user->_fd, reply.c_str(), reply.size(), 0);
+	}
 }
 
 
@@ -198,22 +202,26 @@ void command::JOIN()
 				}
 			}
             it->second->add_user(_user, 1);
-			std::string nickrpl = " " + _user->_nick;
-			for (std::vector<user *>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it2++)
-			{
-				if ((*it2)->_nick != _user->_nick){
-					nickrpl += "  ";
-					nickrpl += (*it2)->_nick;
-				}
-			}
-			display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());
-			display_reply(RPL_NAMREPLY, "=", _command[1].c_str(), nickrpl.c_str());
-            return ;
+			// return;
+			return join_reply();
         }
     }
     _user->_serv->_channels[_command[1]] = new channel(_command[1], _user, _user->_serv);
+	return join_reply();
 }
 
+void command::join_reply(){
+	display_reply(RPL_TOPIC, _command[1].c_str(), _user->_channels[_command[1]]->_topic.c_str());
+	// std::string nickrpl = " " + _user->_nick;
+	// for (std::vector<user *>::iterator it2 = _user->_channels[_command[1]]->_users.begin(); it2 != _user->_channels[_command[1]]->_users.end(); it2++)
+	// {
+	// 	if ((*it2)->_nick != _user->_nick){
+	// 		nickrpl += "  ";
+	// 		nickrpl += (*it2)->_nick;
+	// 	}
+	// }
+	// display_reply(RPL_NAMREPLY, "=", _command[1].c_str(), nickrpl.c_str());
+}
 
 void command::PART()
 {
@@ -223,15 +231,16 @@ void command::PART()
 	{
 		if (it->first == _command[1])
 		{
-			std::string str = ":" + _user->_nick + " PART " + _command[1] + "";
+			std::string str = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " PART " + _command[1];
 			unsigned long i = 2;
+			if (i < _command.size())
+				str += " ";
 			while (i < _command.size()){
 				str += _command[i++];
-				str += " ";
+				if (i < _command.size())
+					str += " ";
 			}
 			str += "\r\n";
-			std::cout << "|" << str << "|" << std::endl;
-			// send(_user->_fd, str.c_str(), str.size(), 0);
 			it->second->broadcast(str, "");
 
 			it->second->delete_user(_user->_nick);
@@ -807,10 +816,10 @@ void command::PRIVMSG()
 }
 
 void command::PING(){
-    std::string reply = "PONG : ";
     if (_command.size() < 2)
         return display_reply(ERR_NOORIGIN);
-    reply += _user->_serv->_name.c_str();
+    std::string reply = "PONG : " + _user->_serv->_name + "\r\n";
+	std::cout << reply << std::endl;
 	send(_user->_fd, reply.c_str(), reply.size(), 0);
 	// std::cout << "PONG " << _user->_serv->_name.c_str() << std::endl;
     // return display_reply(reply);

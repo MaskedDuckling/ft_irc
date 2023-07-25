@@ -30,6 +30,7 @@ class command{
         command &operator=(command const & rhs);
         
 		void execute();
+        void join_reply();
 		void display_reply(std::string reply,...);
         static void init_func_map();
 

@@ -6,6 +6,7 @@ user::user(){
 user::user(int fd, sockaddr_in address, serveur *serv):_address(address), _fd(fd), _serv(serv), _mode(""), _status("Unknown"){
     (void)_fd;
     (void)_address;
+    command::init_func_map();
     // clear_terminal(fd);
 }
 

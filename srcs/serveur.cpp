@@ -99,10 +99,13 @@ int serveur::loop(){
                 buff[lu] = '\0';
                 message = std::string(buff);
                 _users[it->fd]->parse_commands(message);
-                _users[it->fd]->execute_commands();
+                // std::cout << "Message from " << _users[it->fd]->_nick << " : " << message << std::endl;
+                break;
 
             }
         }
+        for (std::vector<pollfd>::iterator it = _pollfds.begin()+1 ; it != _pollfds.end() ; it++)
+            _users[it->fd]->execute_commands();
     }
     return 1;
 }
