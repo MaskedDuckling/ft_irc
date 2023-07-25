@@ -17,19 +17,11 @@ void channel::add_user(user *user, int mode)
     _users.back()->_mode = 2;
 	user->_channels.insert(std::pair<std::string, channel *>(_name, this));
 	user->_chan_name.push_back(_name);
-    for (std::list <std::string>::iterator it = _history.begin(); it != _history.end(); it++)
-	{
-        send(user->_fd, it->c_str(), it->size(), 0);
-	}
 	if (mode == 1)
     {
 		std::string str = ":" + user->_nick + " JOIN " + _name + "\r\n";
 		std::cout << str << std::endl;
-		send(user->_fd, str.c_str(), str.size(), 0);
-
-		if (_history.size() > 20)
-       		_history.pop_front();
-    	_history.push_back(str);
+		broadcast(str, "");
 	}
 }
 
@@ -53,7 +45,10 @@ void channel::broadcast(std::string response, std::string usr){
 	std::cout << "broadcast |" << response << "|" <<std::endl;
     for (std::vector <user *>::iterator it = _users.begin(); it != _users.end(); it++)
 	{
-		if (usr != (*it)->_nick)
+		if (usr == ""){
+			send((*it)->_fd, response.c_str(), response.size(), 0);
+		}
+		else if (usr != (*it)->_nick)
         	send((*it)->_fd, response.c_str(), response.size(), 0);
 	}
 }

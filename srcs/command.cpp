@@ -47,7 +47,7 @@ command::~command()
 //				utility fonction			//
 
 void command::execute(){
-    init_func_map();
+	init_func_map();
     if (!_command.size()){
         std::cout << "No command to execute" << std::endl;
         return ;
@@ -85,7 +85,7 @@ void command::display_reply(std::string msg, ...){
 		i++;
 	}
 	message += "\n";
-	std::cout << "|" << message << "|" << std::endl;
+	std::cout << message << std::endl;
     send(_user->_fd, message.c_str(), message.size(), 0);
     va_end(vl);
 }
@@ -198,6 +198,16 @@ void command::JOIN()
 				}
 			}
             it->second->add_user(_user, 1);
+			std::string nickrpl = " " + _user->_nick;
+			for (std::vector<user *>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it2++)
+			{
+				if ((*it2)->_nick != _user->_nick){
+					nickrpl += "  ";
+					nickrpl += (*it2)->_nick;
+				}
+			}
+			display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());
+			display_reply(RPL_NAMREPLY, "=", _command[1].c_str(), nickrpl.c_str());
             return ;
         }
     }
@@ -213,7 +223,7 @@ void command::PART()
 	{
 		if (it->first == _command[1])
 		{
-			std::string str = ":" + _user->_nick + " PART " + _command[1] + " ";
+			std::string str = ":" + _user->_nick + " PART " + _command[1] + "";
 			unsigned long i = 2;
 			while (i < _command.size()){
 				str += _command[i++];
@@ -221,7 +231,8 @@ void command::PART()
 			}
 			str += "\r\n";
 			std::cout << "|" << str << "|" << std::endl;
-			send(_user->_fd, str.c_str(), str.size(), 0);
+			// send(_user->_fd, str.c_str(), str.size(), 0);
+			it->second->broadcast(str, "");
 
 			it->second->delete_user(_user->_nick);
 			_user->_channels.erase(it);

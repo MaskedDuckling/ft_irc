@@ -74,6 +74,7 @@ void    serveur::addUser(){
 int serveur::delUser(std::vector<pollfd>::iterator it){
     _users[it->fd]->_commands.clear();
     _pollfds.erase(it);
+    close(it->fd);
     _users.erase(it->fd);
     _nbUser--;
     return 0;
