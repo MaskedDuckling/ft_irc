@@ -54,6 +54,8 @@ class command{
 
         void PING();
         void PONG();
+
+        void QUIT();
 };
 
 std::ostream &operator<<(std::ostream &o, command &rhs);

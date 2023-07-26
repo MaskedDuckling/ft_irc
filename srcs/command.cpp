@@ -111,6 +111,8 @@ void command::init_func_map()
 
     _map_fonction.insert(std::make_pair("PING",&command::PING));
     _map_fonction.insert(std::make_pair("PONG",&command::PONG));
+
+	_map_fonction.insert(std::make_pair("QUIT",&command::QUIT));
 }
 
 //				command fonction	for log			//
@@ -464,8 +466,6 @@ void command::KICK()
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
 	if (_command.size() == 3)	 /*	KICK "channel" "USER"	*/
 	{
-		/*if (_command[1][0] == '#' || _command[1][0] == '&')
-			_command[1].erase(0, 1);*/
 		for (std::map<int, user*>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
 		{
 			if (it->second->_nick == _command[2])
@@ -628,106 +628,48 @@ void command::KICK()
 
 void command::INVITE()
 {
-    if (_command.size() < 3)
+	int i = 0;
+	user *tmp;
+    if (_command.size() < 2){
         return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-/*    if (_user->_mode.find('o') == std::string::npos)
-        return display_reply("Need to be operator tu use this command");*/
-    std::map<int, user *>::iterator it = _user->_serv->_users.begin();
-    if (it == _user->_serv->_users.end())
-    {
-        return ;
-    }
-	while (it != _user->_serv->_users.end())
-    {
-        if (it->second->_nick == _command[1])
-        {
-            break;
-        }
-        it++;
-    }
-    if (it == _user->_serv->_users.end())
-    {
-        return display_reply(ERR_NOSUCHNICK, _command[1].c_str());
-    }
-    std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin();
-    if (it2 == _user->_serv->_channels.end())
-    {
-        return ;
-    }
-    while (it2 != _user->_serv->_channels.end())
-    {
-        if ( it2->first == _command[2])
-        {
-            break;
-        }
-        it2++;
-    }
-    if (it2 == _user->_serv->_channels.end())
-    {
-        return ;
-    }
-	if (it2->second->isModeSet('i'))
-	{
-		int op = 0;
-		for (std::vector<user *>::iterator it3 = it2->second->_operators.begin(); it3 != it2->second->_operators.end(); it3++)
-		{
-			if ((*it3)->_nick == _user->_nick)
-			{
-				op = 1;
-				break ;
-			}
-			if (_user->_mode.find('o') != std::string::npos)
-			{
-				op = 1;
-				break ;
-			}
-		}
-		if (op == 0)
-			return display_reply("Need to be operator tu use this command");
 	}
-    std::vector <user *>::iterator _use = it2->second->_users.begin();
-    while (_use != it2->second->_users.end())
-    {
-        if ((*_use)->_nick == _user->_nick)
-        {
-            break;
-        }
-        _use++;
-    }
-    if (_use == it2->second->_users.end())
-	    return display_reply(ERR_NOTONCHANNEL, _command[2].c_str());
-    _use = it2->second->_users.begin();
-    while (_use != it2->second->_users.end())
-    {
-        if ((*_use)->_nick == _command[2])
-        {
-            break;
-        }
-        _use++;
-    }
-    if (_use != it2->second->_users.end())
-	    return display_reply(ERR_USERONCHANNEL, _command[1].c_str(), _command[2].c_str());
-    it2->second->add_user(it->second, 0);
-    std::string str = "\x1B[2J\x1B[H";
-    send(it->second->_fd, str.c_str(), str.size(), 0);
-    it2->second->print_history(it->second);
-    str = "You have been invited to join the channel " + it2->first + "\n";
-    send(it->second->_fd, str.c_str(), str.size(), 0);
-    str = "You invite " + it->second->_nick + " to join the channel " + it2->first + "\n";
-	display_reply(RPL_INVITING, _command[1].c_str(), _command[2].c_str());
-	display_reply(str.c_str());
-    //send(_user->_fd, str.c_str(), str.size(), 0);
+
+	for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++){
+		if (it->second->_nick == _command[1]){
+			i = 1;
+			tmp = it->second;
+		}
+	}
+	if (i == 0)
+		return display_reply(ERR_NOSUCHNICK, _command[1].c_str());
+	if (_user->_channels.size() == 0)
+		return display_reply(ERR_NOTONCHANNEL, _command[2].c_str());
+	for (std::map<std::string, channel*>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++){
+		if (it->second->_name == _command[2])
+			i = 1;
+	}
+	if (i == 0)
+		return display_reply(ERR_NOTONCHANNEL, _command[2].c_str());
+	if (_user->_channels[_command[2]]->check_user(_command[1]))
+		return display_reply(ERR_USERONCHANNEL, _command[1].c_str(), _command[2].c_str());
+	
+	std::string str = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " INVITE " + _command[1] + " " + _command[2] + "\r\n";
+	std::cout << str << std::endl;
+	send(_user->_fd, str.c_str(), str.size(), 0);
+	send(tmp->_fd, str.c_str(), str.size(), 0);
+	return ;
 }
 
 void command::PRIVMSG()
 {
+	if (_command.size() < 2)
+		return display_reply(ERR_NORECIPIENT, _command[0].c_str());
+	if (_command.size() < 3)
+		return display_reply(ERR_NOTEXTTOSEND);
     for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
     {
         if (it->second->_nick == _command[1])
         {
-            // std::string str = "is away";
-            // if (it->second->_mode.find("a") != std::string::npos)
-            //     return display_reply(RPL_AWAY, _command[1].c_str(), str.c_str());
             std::string str = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " PRIVMSG " + _command[1] + " ";
             unsigned long i = 2;
             while (i < _command.size())
@@ -735,17 +677,13 @@ void command::PRIVMSG()
 				str += _command[i++];
 				if (i < _command.size())
 					str += " ";
-                // str += _command[i++];
-                // str += " ";
             }
             str += "\r\n"; 
 			std::cout << "sending to " << it->second->_nick << " " << str << std::endl;
             send(it->second->_fd, str.c_str(), str.size(), 0);
-			send(_user->_fd, str.c_str(), str.size(), 0);
             return ;
         }
     }
-
     for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
     {
         if (it->first == _command[1])
@@ -762,6 +700,7 @@ void command::PRIVMSG()
             return ;
         }
     }
+	return display_reply(ERR_NOSUCHNICK, _command[1].c_str());
 }
 
 void command::PING(){
@@ -770,14 +709,29 @@ void command::PING(){
     std::string reply = "PONG : " + _user->_serv->_name + "\r\n";
 	std::cout << reply << std::endl;
 	send(_user->_fd, reply.c_str(), reply.size(), 0);
-	// std::cout << "PONG " << _user->_serv->_name.c_str() << std::endl;
-    // return display_reply(reply);
 }
 
 void command::PONG(){
 
     if (_command.size() < 2)
         return display_reply(ERR_NOORIGIN);
+}
+
+void command::QUIT(){
+	if (_command.size() < 2)
+		return display_reply(ERR_NOORIGIN);
+	std::string reply = ":" + _user->_nick + " QUIT ";
+	unsigned long i = 1;
+	while (i < _command.size())
+	{
+		reply += _command[i++];
+		reply += " ";
+	}
+	reply += "\r\n";
+	std::cout << reply << std::endl;
+	send(_user->_fd, reply.c_str(), reply.size(), 0);
+	_user->_status = "Disconnected";
+	close(_user->_fd);
 }
 
 std::ostream &operator<<(std::ostream &o, command &rhs){

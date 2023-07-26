@@ -11,6 +11,14 @@ channel::channel(std::string name, user *user, serveur *serv): _name(name), _ser
 channel::~channel(){
 }
 
+int channel::check_user(std::string nick)
+{
+	for (std::vector<user *>::iterator it = _users.begin(); it != _users.end(); it++)
+		if ((*it)->_nick == nick)
+			return (1);
+	return (0);
+}
+
 void channel::add_user(user *user, int mode)
 {
     _users.push_back(user);
