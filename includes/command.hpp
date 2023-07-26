@@ -31,6 +31,7 @@ class command{
         
 		void execute();
         void join_reply();
+        void display_topic();
 		void display_reply(std::string reply,...);
         static void init_func_map();
 

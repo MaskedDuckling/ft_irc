@@ -409,91 +409,43 @@ void command::MODE()
 
 void command::TOPIC()
 {
-    if (_command.size() < 2)
-        return display_reply(ERR_NEEDMOREPARAMS, "TOPIC");
-    unsigned long i = 0;
-    std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin();
-    while (it != _user->_serv->_channels.end() && it->second->_name != _command[1])
-    {
-        it++;
-        i++;
-    }
-    if (it == _user->_serv->_channels.end())
-	{
-        return display_reply("\033[0;31mChannel not created\033[0m");
+    if (_command.size() < 2){
+        return display_reply(ERR_NEEDMOREPARAMS, "TOPIC");}
+
+	for (std::map<std::string, channel *>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++){
+		if (_command[1] == it->second->_name){
+			if (_command[2] == "" && it->second->_topic == "")
+				return display_reply(RPL_NOTOPIC, _command[1].c_str());
+			else if (_command[2] == "" && it->second->_topic != "")
+				display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());
+			else if (_command[2] == ":" && _command.size() == 3){
+				it->second->_topic = "";
+				display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());	
+			}
+			else if (_command.size() >= 3)
+			{
+				display_topic();
+				display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());
+			}
+			return;
+		}
 	}
-    if (i >= _user->_serv->_channels.size())
+	return display_reply(ERR_NOTONCHANNEL, _command[1].c_str());
+}
+
+void command::display_topic(){
+	_command[2].erase(0,1);
+	std::string reply = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " TOPIC " + _command[1];
+	std::string str = "";
+	for (unsigned long i = 2; i < _command.size(); i++)
 	{
-        return display_reply(ERR_NOSUCHNICK);
+		str += _command[i];
+		if (i < _command.size() - 1)
+			str += " ";
 	}
-    std::map<std::string, channel *>::iterator it3 = _user->_channels.begin();
-    i = 0;
-    while (it3 != _user->_channels.end() && it3->second->_name != _command[1])
-    {
-        it3++;
-        i++;
-    }
-    if (it3 == _user->_channels.end())
-        return display_reply("\033[0;31mNo channel joined\033[0m");
-    if (i >= _user->_channels.size())
-        return display_reply(ERR_NOTONCHANNEL, _command[1].c_str());
-    if (_command.size() == 2)
-    {
-        for (std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin(); it2 != _user->_serv->_channels.end(); it2++)
-        {
-            if (it2->second->_name == _command[1])
-            {
-                send(_user->_fd, it2->second->_topic.c_str(), it2->second->_topic.size(), 0);
-                return ;
-            }
-        }
-    }
-    else if (_command.size() > 2)
-    {
-        for (std::map<std::string, channel *>::iterator it2 = _user->_serv->_channels.begin(); it2 != _user->_serv->_channels.end(); it2++)
-        {
-            if (it2->second->_name == _command[1])
-            {
-				for (std::vector <char>::iterator cha = it2->second->_mode.begin(); cha != it2->second->_mode.end(); cha++)
-				{
-					if (*cha == 't')
-					{
-                        std::vector <user *>::iterator user = it2->second->_users.begin();
-						while (user != it2->second->_users.end() && (*user)->_nick != _user->_nick)
-                            user++;
-                        if (user == it2->second->_users.end())
-                            return display_reply("\033[0;31mNfo channel joined\033[0m");
-                        if (it->second->checkOper(_user->_nick) == 0)
-			            {
-				            if (_user->_mode.find('o') == std::string::npos)
-				            {
-					            display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
-					            return ;
-				            }
-		            	} 
-					}
-				}
-				std::string str = "\033[0;36mChannel topic: ";
-                if (_command[2] == ":")
-                {
-                    it2->second->_topic.clear();
-                    str = "\033[0;34mTopic has been clean for channel " + it2->second->_name +  " by " + _user->_nick + "\n\033[0m";
-                    it2->second->broadcast(str, "-1");
-                    return ;
-                }
-                unsigned long i = 2;
-                while (i < _command.size())
-                {
-                    str += _command[i++];
-                    str += " ";
-                }
-                it->second->_topic = str + "\033[0m\n";
-                str = "\033[0;34mTopic has been set for channel " + it2->second->_name +  " by " + _user->_nick + "\n\033[0m";
-                it2->second->broadcast(str, "-1");
-                return ;
-            }
-        }
-    }
+	reply += str + "\r\n";
+	_user->_channels[_command[1]]->_topic = str;
+	_user->_channels[_command[1]]->broadcast(reply, "");
 }
 
 void command::WHOIS(){
@@ -769,47 +721,44 @@ void command::INVITE()
 
 void command::PRIVMSG()
 {
-    if (_command.size() < 3)
-        return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-	
     for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
     {
         if (it->second->_nick == _command[1])
         {
-            std::string str;
-            if (it->second->_mode.find("a") != std::string::npos)
-            {
-                str = "User " + it->second->_nick + " is away\n";
-                send(it->second->_fd, str.c_str(), str.size(), 0);
-                return ;
-            }
-            str = "";
+            // std::string str = "is away";
+            // if (it->second->_mode.find("a") != std::string::npos)
+            //     return display_reply(RPL_AWAY, _command[1].c_str(), str.c_str());
+            std::string str = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " PRIVMSG " + _command[1] + " ";
             unsigned long i = 2;
-            str += _user->_nick;
-            str += " : ";
             while (i < _command.size())
             {
-                str += _command[i++];
-                str += " ";
+				str += _command[i++];
+				if (i < _command.size())
+					str += " ";
+                // str += _command[i++];
+                // str += " ";
             }
-            str += "\n";
+            str += "\r\n"; 
+			std::cout << "sending to " << it->second->_nick << " " << str << std::endl;
             send(it->second->_fd, str.c_str(), str.size(), 0);
+			send(_user->_fd, str.c_str(), str.size(), 0);
             return ;
         }
     }
+
     for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
     {
         if (it->first == _command[1])
         {
-            std::string str = ":" + _user->_nick + " PRIVMSG " + _command[1] + " ";
+            std::string reply = ":" + _user->_nick + " PRIVMSG " + _command[1] + " ";
             unsigned long i = 2;
             while (i < _command.size())
             {
-                str += _command[i++];
-                str += " ";
+                reply += _command[i++];
+                reply += " ";
             }
-            str += "\r\n";  
-            it->second->broadcast(str, _user->_nick);
+            reply += "\r\n";  
+            it->second->broadcast(reply, _user->_nick);
             return ;
         }
     }
