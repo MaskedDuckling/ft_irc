@@ -3,7 +3,7 @@
 channel::channel() : _limit(-1)
 {}
 
-channel::channel(std::string name, user *user, serveur *serv): _name(name), _serv(serv){
+channel::channel(std::string name, user *user, serveur *serv): _name(name), _serv(serv), _mode(""), _key(""){
     add_user(user, 1);
 	_limit = -1;
 }
@@ -98,65 +98,59 @@ void channel::print_history(user *user)
 
 int channel::getMode(char c)
 {
-	for (std::vector<char>::iterator it = _mode.begin(); it != _mode.end(); it++)
-		if (*it == c)
-			return (1);
+	if (_mode.find(c) != std::string::npos)
+		return (1);
 	return (0);
 }
 
-void channel::addMode(char c, std::string param)
-{
-/*	if (c == 'l')
-		setLimit(atoi(param.c_str()));*/
-	if (c == 'k')
-		setKey(param);
-	if (c == 'o')
-	{
-		for (std::vector<user *>::iterator it = _users.begin(); it != _users.end(); it++)
-		{
-			if ((*it)->_nick == param)
-			{
-				add_operator(*it);
-				return ;
-			}
-		}
-	}
-	else
-	{
-		if (c == 'l')
-		{
-			deleteMode('l', param);
-			setLimit(atoi(param.c_str()));
-		}
-		_mode.push_back(c);
-	}
-}
+// void channel::addMode(char c, std::string param)
+// {
+// /*	if (c == 'l')
+// 		setLimit(atoi(param.c_str()));*/
+// 	if (c == 'k')
+// 		setKey(param);
+// 	if (c == 'o')
+// 	{
+// 		for (std::vector<user *>::iterator it = _users.begin(); it != _users.end(); it++)
+// 		{
+// 			if ((*it)->_nick == param)
+// 			{
+// 				add_operator(*it);
+// 				return ;
+// 			}
+// 		}
+// 	}
+// 	else
+// 	{
+// 		if (c == 'l')
+// 		{
+// 			deleteMode('l', param);
+// 			setLimit(atoi(param.c_str()));
+// 		}
+// 		_mode.push_back(c);
+// 	}
+// }
 
-void channel::deleteMode(char mode, std::string param)
-{
-	if (mode == 'l')
-		removeLimit();
-	if (mode == 'k')
-		deleteKey();
-	if (mode == 'o')
-	{
-		for (std::vector<user *>::iterator it = _operators.begin(); it != _operators.end(); it++)
-			if ((*it)->_nick == param)
-			{
-				delete_operator(*it);
-				return ;
-			}
-	}
-	else
-	{
-		for (std::vector <char>::iterator it = _mode.begin(); it != _mode.end(); it++)
-			if (*it == mode)
-			{
-				_mode.erase(it);
-				return ;
-			}
-	}
-}
+// void channel::deleteMode(char mode, std::string param)
+// {
+// 	if (mode == 'l')
+// 		removeLimit();
+// 	if (mode == 'k')
+// 		deleteKey();
+// 	if (mode == 'o')
+// 	{
+// 		for (std::vector<user *>::iterator it = _operators.begin(); it != _operators.end(); it++)
+// 			if ((*it)->_nick == param)
+// 			{
+// 				delete_operator(*it);
+// 				return ;
+// 			}
+// 	}
+// 	else
+// 	{
+// 		_mode.erase(_mode.find(mode,1));
+// 	}
+// }
 
 void channel::setLimit(int limit)
 {
@@ -212,9 +206,8 @@ int channel::isKeySet()
 
 int channel::isModeSet(char m)
 {
-	for(std::vector<char>::iterator it = _mode.begin(); it != _mode.end(); it++)
-		if (*it == m)
-			return (1);
+	if (_mode.find(m) != std::string::npos)
+		return (1);
 	return (0);
 }
 
@@ -223,5 +216,38 @@ int channel::checkOper(std::string name)
 	for (std::vector<user *>::iterator it = _operators.begin(); it != _operators.end(); it++)
 		if ((*it)->_nick == name)
 			return (1);
+	return (0);
+}
+
+int channel::change_channel_mode(char sign, char mode, std::vector<std::string> command){
+
+	std::string modes = "itkol";
+	std::cout << "mode : " << mode << std::endl;
+	if (modes.find(mode) == std::string::npos)
+		return (-1);
+	std::cout << "mode : " << mode << std::endl;
+	if (sign == '+'){
+		if (_mode.find(mode) != std::string::npos)
+			return (0);
+		_mode += mode;
+		if (mode == 'l' && command.size() > 3){
+			std::stringstream sstream(command[3]);
+			int i;
+			sstream >> i;
+			if (sstream.fail() || !sstream.eof() || i < 0){
+				std::cout << "Error invalid port" << std::endl;
+				return 0;
+			}
+			_limit = i;
+		}
+		if (mode == 'k')
+			_key = command[3];
+		return (1);
+	}
+	else if (sign == '-' && _mode.find(mode) != std::string::npos)
+	{
+		_mode.erase(_mode.find(mode), 1);
+		return (1);
+	}
 	return (0);
 }

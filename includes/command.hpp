@@ -35,6 +35,9 @@ class command{
 		void display_reply(std::string reply,...);
         static void init_func_map();
 
+        int add_mode(std::string mode);
+        int deleteUserMode(char newMode);
+
         void PASS();
         void USER();
         void NICK();

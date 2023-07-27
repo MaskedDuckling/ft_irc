@@ -18,13 +18,13 @@ class channel{
     
         std::string _name;
         std::string _topic;
-		std::vector <char> _mode;
-		std::string _key;
 		int	_limit;
         std::vector <user *> _users;
 		std::vector <user *> _operators;
         std::list <std::string> _history;
         serveur	*_serv;
+		std::string _mode;
+		std::string _key;
 
         channel();
         channel(std::string name, user *user, serveur *serv);
@@ -52,6 +52,7 @@ class channel{
 		int isKeySet();
 		int isModeSet(char c);
 		int checkOper(std::string user);
+		int change_channel_mode(char, char, std::vector<std::string>);
 };
 
 #endif

@@ -36,6 +36,7 @@ class user{
 		std::string             _status;
 		std::string				_password;
 		std::string				_buffito;
+		std::string				_invited;
 
 
 		user();
@@ -44,8 +45,7 @@ class user{
 
 		void parse_commands(std::string message);
 		void execute_commands();
-		int add_mode(std::string mode, int oper);
-		int deleteUserMode(char newMode);
+		int isUser(std::string nick);
 
 };
 
