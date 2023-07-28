@@ -184,19 +184,20 @@ void command::JOIN()
 				display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
 				return;
 			}
-			else if (it->second->_limit > -1 && it->second->_limit <= (int)it->second->_users.size())
+			if (it->second->_limit > -1 && it->second->_limit <= (int)it->second->_users.size())
 			{
 				display_reply(ERR_CHANNELISFULL, _command[1].c_str());
 				return;
 			}
-			else if (it->second->getMode('k') == 1)
+			if (it->second->getMode('k') == 1)
 			{
+				std::cout << "key : " << it->second->_key << std::endl;
 				if (_command.size() < 3)
 				{
 					display_reply(ERR_BADCHANNELKEY, _command[1].c_str());
 					return;
 				}
-				else if (it->second->_key != _command[2])
+				if (it->second->_key != _command[2])
 				{
 					display_reply(ERR_BADCHANNELKEY, _command[1].c_str());
 					return;
@@ -270,7 +271,134 @@ void command::OPER()
 	return display_reply(RPL_YOUREOPER);
 }
 
-void command::MODE()
+void	command::MODE()
+{
+	std::string modes = "itkol";
+	int	j = 0;
+	int y = 0;
+	if (_command.size() < 3)
+	{
+		display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+		return ;
+	}
+	for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
+	{
+		if (it->first == _command[1])
+		{
+			if (it->second->checkOper(_user->_nick) == 0)
+			{
+				if (_user->_mode.find('o') == std::string::npos)
+				{
+					display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
+					return ;
+				}
+			}
+			if (_command[2][0] == '+')
+			{
+				_command[2].erase(0, 1);
+				while (_command[2].size() > 0)
+				{
+					j = 0;
+					for (int i = 0; i < (int)modes.size(); i++)
+					{
+						if (_command[2][0] == modes[i])
+						{
+							j = 1;
+							if ((_command[2][0] == 'k') && (it->second->isKeySet() == 0))
+							{
+								display_reply(ERR_KEYSET, _command[1].c_str());
+								return ;
+							}
+							if (_command[2][0] == 'o' && _command.size() > 3)
+							{
+								y = 0;
+								for (std::vector<user*>::iterator it2 = it->second->_users.begin() ; it2 != it->second->_users.end() ; it2++)
+								{
+									if ((*it2)->_nick == _command[3])
+										y = 1;
+								}
+								if (y == 0)
+								{
+									display_reply(ERR_USERNOTINCHANNEL, _command[3].c_str(), _command[1].c_str());
+									return ;
+								}
+							}
+							if (it->second->isModeSet(_command[2][0]) == 1 && _command[2][0] != 'l')
+							{
+
+							}
+							else if (_command[2][0] == 'k' || _command[2][0] == 'l' || _command[2][0] == 'o')
+							{
+								if (_command.size() < 4)
+								{
+									display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+									return ;
+								}
+								it->second->addMode(_command[2][0], _command[3]);
+								_command.erase(_command.begin() + 3);
+							}
+							else
+							{
+								it->second->addMode(_command[2][0], "");
+							}
+						}
+					}
+					if (j == 0)
+						display_reply(ERR_UNKNOWNMODE, _command[2][0], _command[1].c_str());
+					_command[2].erase(0, 1);
+				}
+			}
+			else if (_command[2][0] == '-')
+			{
+				_command[2].erase(0, 1);
+				while (_command[2].size() > 0)
+				{
+					j = 0;
+					for (int i = 0; i < (int)modes.size(); i++)
+					{
+						if (_command[2][0] == modes[i])
+						{
+							j = 1;
+							if (_command[2][0] == 'o')
+							{
+								if (_command.size() < 4)
+								{
+									display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+									return ;
+								}
+								y = 0;
+								for (std::vector<user*>::iterator it2 = it->second->_users.begin(); it2 != it->second->_users.end(); it2++)
+								{
+									if ((*it2)->_nick == _command[3])
+									{
+										y = 1;
+									}
+								}
+								if (y == 0)
+								{
+									display_reply(ERR_USERNOTINCHANNEL, _command[3].c_str(), _command[1].c_str());
+									return ;
+								}
+								it->second->deleteMode(_command[2][0], _command[3]);
+								_command.erase(_command.begin() + 3);
+							}
+							else
+								it->second->deleteMode(_command[2][0], "");
+						}
+					}
+					if (j == 0)
+						display_reply(ERR_UNKNOWNMODE, _command[2][0], _command[1].c_str());
+					_command[2].erase(0, 1);
+				}
+			}
+			return ;
+		}
+		display_reply(ERR_NOSUCHCHANNEL, _command[1].c_str());
+	return ;
+	}
+}
+
+/*void command::MODE()
 {
 	std::string modes = "itkol";
 	int i = 0;
@@ -315,7 +443,7 @@ void command::MODE()
 	}
 }
 
-int command::add_mode(std::string mode){
+*/int command::add_mode(std::string mode){
     std::string available_modes("aiwroOs");
     if (available_modes.find(mode) == std::string::npos)
         return 0;
@@ -435,7 +563,7 @@ void command::KICK()
 					str_channel += "\r\n";
 					it2->second->broadcast(str_channel, _command[2]);
 					std::cout << str_user << std::endl;
-					send(it->second->_fd, str_user.c_str(), str_user.size(), 0); /*	Notifie l'user du kick	*/
+					send(it->second->_fd, str_channel.c_str(), str_channel.size(), 0); /*    Notifie l'user du kick    */
 
 
 					it2->second->delete_user(it->second->_nick); /*	Supprime l'user de la liste du channel	*/
@@ -470,6 +598,7 @@ void command::INVITE()
 	}
 	if (i == 0)
 		return display_reply(ERR_NOSUCHNICK, _command[1].c_str());
+	i = 0;
 	if (_user->_channels.size() == 0)
 		return display_reply(ERR_NOTONCHANNEL, _command[2].c_str());
 	for (std::map<std::string, channel *>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++)
