@@ -139,12 +139,10 @@ void channel::addMode(char c, std::string param)
  		}
 	}
 	_mode.push_back(c);
-	std::cout << "mode : " << _mode << std::endl;
 }
 
 void channel::deleteMode(char mode, std::string param)
 {
-	std::cout << "delete mode " << mode << std::endl;
 	if (mode == 'l')
 	{
  		removeLimit();

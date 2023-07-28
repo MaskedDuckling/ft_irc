@@ -179,17 +179,17 @@ void command::JOIN()
 	{
 		if (it->first == _command[1])
 		{
-			if (it->second->getMode('i') == 1 && _user->_invited != _command[1])
-			{
-				display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
-				return;
-			}
 			if (it->second->_limit > -1 && it->second->_limit <= (int)it->second->_users.size())
 			{
 				display_reply(ERR_CHANNELISFULL, _command[1].c_str());
 				return;
 			}
-			if (it->second->getMode('k') == 1)
+			if (it->second->getMode('i') == 1 && _user->_invited != _command[1])
+			{
+				display_reply(ERR_INVITEONLYCHAN, _command[1].c_str());
+				return;
+			}
+			if (it->second->getMode('k') == 1 && _user->_invited != _command[1])
 			{
 				std::cout << "key : " << it->second->_key << std::endl;
 				if (_command.size() < 3)
@@ -281,21 +281,21 @@ void	command::MODE()
 		display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
 		return ;
 	}
-	for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
+	for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++) // check if channel exist
 	{
 		if (it->first == _command[1])
 		{
-			if (it->second->checkOper(_user->_nick) == 0)
+			if (it->second->checkOper(_user->_nick) == 0) // check if user is operator
 			{
 				if (_user->_mode.find('o') == std::string::npos)
 				{
-					display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
+					display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str()); // if not operator send error
 					return ;
 				}
 			}
-			if (_command[2][0] == '+')
+			if (_command[2][0] == '+') // if mode is + so add mode
 			{
-				_command[2].erase(0, 1);
+				_command[2].erase(0, 1); // erase + to make a loop
 				while (_command[2].size() > 0)
 				{
 					j = 0;
@@ -394,7 +394,7 @@ void	command::MODE()
 			return ;
 		}
 		display_reply(ERR_NOSUCHCHANNEL, _command[1].c_str());
-	return ;
+		return ;
 	}
 }
 
