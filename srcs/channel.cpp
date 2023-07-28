@@ -137,8 +137,9 @@ void channel::addMode(char c, std::string param)
  			deleteMode('l', param);
  			setLimit(atoi(param.c_str()));
  		}
- 		_mode.push_back(c);
 	}
+	_mode.push_back(c);
+	std::cout << "mode : " << _mode << std::endl;
 }
 
 void channel::deleteMode(char mode, std::string param)
@@ -167,7 +168,8 @@ void channel::deleteMode(char mode, std::string param)
 	}
 	else
 	{
- 		_mode.erase(_mode.find(mode,1));
+		if (_mode.find(mode) != std::string::npos)
+			_mode.erase(_mode.find(mode), 1);
 	}
 }
 

@@ -194,12 +194,12 @@ void command::JOIN()
 				std::cout << "key : " << it->second->_key << std::endl;
 				if (_command.size() < 3)
 				{
-					display_reply(ERR_PASSWDMISMATCH);
+					display_reply(ERR_BADCHANNELKEY, _command[1].c_str());
 					return;
 				}
 				if (it->second->_key != _command[2])
 				{
-					display_reply(ERR_PASSWDMISMATCH);
+					display_reply(ERR_BADCHANNELKEY, _command[1].c_str());
 					return;
 				}
 			}
@@ -579,9 +579,20 @@ void command::INVITE()
 	{
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
 	}
-	if (_user->_mode.find('o') == std::string::npos)
-		return display_reply(ERR_CHANOPRIVSNEEDED, _command[2].c_str());
-
+	for (std::map<std::string, channel *>::iterator it = _user->_serv->_channels.begin(); it != _user->_serv->_channels.end(); it++)
+	{
+		if (it->first == _command[2])
+		{
+			if (it->second->checkOper(_user->_nick) == 0)
+			{
+				if (_user->_mode.find('o') == std::string::npos)
+				{
+					display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
+					return ;
+				}
+			}
+		}
+	}
 	for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
 	{
 		if (it->second->_nick == _command[1])
