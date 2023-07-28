@@ -191,7 +191,6 @@ void command::JOIN()
 			}
 			if (it->second->getMode('k') == 1 && _user->_invited != _command[1])
 			{
-				std::cout << "key : " << it->second->_key << std::endl;
 				if (_command.size() < 3)
 				{
 					display_reply(ERR_BADCHANNELKEY, _command[1].c_str());
@@ -398,46 +397,7 @@ void	command::MODE()
 	}
 }
 
-/*void command::MODE()
-{
-	std::string modes = "itkol";
-	int i = 0;
-
-	if (_command.size() < 3)
-		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-	if (_user->_mode.find('o') == std::string::npos)
-		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
-	if (_command[1] == _user->_nick)
-	{
-		char c = _command[2][0];
-		_command[2].erase(0, 1);
-		if (c == '+')
-			add_mode(_command[2].c_str());
-		else if (c == '-')
-			deleteUserMode(_command[2].c_str()[0]);
-		else
-			return display_reply(ERR_UMODEUNKNOWNFLAG);
-		return;
-	}
-	else if (_user->isUser(_command[1]) == 1)
-		return display_reply(ERR_USERSDONTMATCH);
-	else{
-		for (std::map<std::string, channel *>::iterator it =_user->_channels.begin(); it != _user->_channels.end() ;it++){
-			if (it->second->_name == _command[1]){
-				i = it->second->change_channel_mode(_command[2][0], _command[2][1], _command);
-				// std::cout << it->second->_mode << std::endl;
-				// std::string str = it->second->_mode;
-				if (i == 1)
-					return display_reply(RPL_CHANNELMODEIS, _command[1].c_str(),  it->second->_mode.c_str(), "");
-				break;	
-			}
-		}
-		if (i == -1)
-			return display_reply(ERR_UNKNOWNMODE, &_command[2][1], _command[1].c_str());
-	}
-}
-
-*/int command::add_mode(std::string mode){
+int command::add_mode(std::string mode){
     std::string available_modes("aiwroOs");
     if (available_modes.find(mode) == std::string::npos)
         return 0;
@@ -477,14 +437,18 @@ void command::TOPIC()
 	{
 		return display_reply(ERR_NEEDMOREPARAMS, "TOPIC");
 	}
-	if (_user->_mode.find('o') == std::string::npos && _user->_channels[_command[1]]->getMode('t') == 1)
-		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
 	for (std::map<std::string, channel *>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++)
 	{
-		if (it->second->getMode('t') && _user->_mode.find("o") == std::string::npos)
-			return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
 		if (_command[1] == it->second->_name)
 		{
+			if (it->second->getMode('k')==1)
+			{
+				if (_user->_mode.find('o') == std::string::npos && it->second->checkOper(_user->_nick) == 0)
+				{
+					display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
+					return ;
+				}
+			}
 			if (_command[2] == "" && it->second->_topic == "")
 				return display_reply(RPL_NOTOPIC, _command[1].c_str());
 			else if (_command[2] == "" && it->second->_topic != "")
@@ -535,10 +499,11 @@ void command::KICK()
 {
 	if (_command.size() < 3)
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-	if (_user->_mode.find('o') == std::string::npos)
+	if (_user->_mode.find('o') == std::string::npos && _user->_channels[_command[1]]->checkOper(_user->_nick) == 0)
 		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
+
 	std::string str_channel = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " KICK " + _command[1] + " " + _command[2] + " ";
-	std::string str_user = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " PART " + _command[1] + "\r\n";
+	std::string str_user = "";
 	/*	KICK "channel" "USER"	*/
 	for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
 	{
@@ -550,14 +515,17 @@ void command::KICK()
 				{
 					for (unsigned long i = 3; i < _command.size(); i++)
 					{
+						if (_command[3] == ":")
+							break;
 						str_channel += _command[i];
 						if (i < _command.size() - 1)
 							str_channel += " ";
 					}
 					str_channel += "\r\n";
 					it2->second->broadcast(str_channel, _command[2]);
+					str_user = ":" + it->second->_nick + "!" + _user->_serv->_name + "@localhost" + " PART " + _command[1] + "\r\n";
 					std::cout << str_user << std::endl;
-					send(it->second->_fd, str_channel.c_str(), str_channel.size(), 0); /*    Notifie l'user du kick    */
+					send(it->second->_fd, str_user.c_str(), str_user.size(), 0); /*    Notifie l'user du kick    */
 
 
 					it2->second->delete_user(it->second->_nick); /*	Supprime l'user de la liste du channel	*/
