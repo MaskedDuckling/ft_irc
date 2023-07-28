@@ -222,14 +222,11 @@ int channel::checkOper(std::string name)
 int channel::change_channel_mode(char sign, char mode, std::vector<std::string> command){
 
 	std::string modes = "itkol";
-	std::cout << "mode : " << mode << std::endl;
 	if (modes.find(mode) == std::string::npos)
 		return (-1);
-	std::cout << "mode : " << mode << std::endl;
 	if (sign == '+'){
 		if (_mode.find(mode) != std::string::npos)
 			return (0);
-		_mode += mode;
 		if (mode == 'l' && command.size() > 3){
 			std::stringstream sstream(command[3]);
 			int i;
@@ -240,8 +237,14 @@ int channel::change_channel_mode(char sign, char mode, std::vector<std::string> 
 			}
 			_limit = i;
 		}
-		if (mode == 'k')
+		else if (mode == 'k'){
+			if (command.size() < 4)
+				return (0);
+			if (_key != "")
+				return (2);
 			_key = command[3];
+		}
+		_mode += mode;
 		return (1);
 	}
 	else if (sign == '-' && _mode.find(mode) != std::string::npos)

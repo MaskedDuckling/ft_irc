@@ -193,12 +193,12 @@ void command::JOIN()
 			{
 				if (_command.size() < 3)
 				{
-					display_reply(ERR_PASSWDMISMATCH);
+					display_reply(ERR_BADCHANNELKEY, _command[1].c_str());
 					return;
 				}
 				else if (it->second->_key != _command[2])
 				{
-					display_reply(ERR_PASSWDMISMATCH);
+					display_reply(ERR_BADCHANNELKEY, _command[1].c_str());
 					return;
 				}
 			}
@@ -291,8 +291,12 @@ void command::MODE()
 			return display_reply(ERR_UMODEUNKNOWNFLAG);
 		return;
 	}
+
+
 	else if (_user->isUser(_command[1]) == 1)
 		return display_reply(ERR_USERSDONTMATCH);
+
+
 	else{
 		for (std::map<std::string, channel *>::iterator it =_user->_channels.begin(); it != _user->_channels.end() ;it++){
 			if (it->second->_name == _command[1]){
@@ -306,6 +310,8 @@ void command::MODE()
 		}
 		if (i == -1)
 			return display_reply(ERR_UNKNOWNMODE, &_command[2][1], _command[1].c_str());
+		else if (i == 2)
+			return display_reply(ERR_KEYSET, _command[1].c_str());
 	}
 }
 
