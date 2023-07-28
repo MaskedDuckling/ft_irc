@@ -549,12 +549,15 @@ void command::INVITE()
 	{
 		if (it->first == _command[2])
 		{
-			if (it->second->checkOper(_user->_nick) == 0)
+			if (it->second->_mode.find('i') != std::string::npos)
 			{
-				if (_user->_mode.find('o') == std::string::npos)
+				if (it->second->checkOper(_user->_nick) == 0)
 				{
-					display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
-					return ;
+					if (_user->_mode.find('o') == std::string::npos)
+					{
+						display_reply(ERR_CHANOPRIVSNEEDED, _command[2].c_str());
+						return ;
+					}
 				}
 			}
 		}
