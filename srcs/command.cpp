@@ -439,9 +439,9 @@ void command::TOPIC()
 	}
 	for (std::map<std::string, channel *>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++)
 	{
-		if (_command[1] == it->second->_name)
+		if (_command[1] == it->first)
 		{
-			if (it->second->getMode('k')==1)
+			if (it->second->getMode('k') == 1)
 			{
 				if (_user->_mode.find('o') == std::string::npos && it->second->checkOper(_user->_nick) == 0)
 				{
@@ -449,10 +449,19 @@ void command::TOPIC()
 					return ;
 				}
 			}
+			/*if (_command.size() < 3)
+				return (display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str()));
 			if (_command[2] == "" && it->second->_topic == "")
 				return display_reply(RPL_NOTOPIC, _command[1].c_str());
 			else if (_command[2] == "" && it->second->_topic != "")
-				display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());
+				display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());*/
+			if (_command.size() == 2)
+			{
+            	if (it->second->_topic == "")
+                    return display_reply(RPL_NOTOPIC, _command[1].c_str());
+                else if (it->second->_topic != "")
+                    display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());
+            }
 			else if (_command[2] == ":" && _command.size() == 3)
 			{
 				it->second->_topic = "";
