@@ -277,6 +277,8 @@ void command::MODE()
 
 	if (_command.size() < 3)
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+	if (_user->_mode.find('o') == std::string::npos)
+		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
 	if (_command[1] == _user->_nick)
 	{
 		char c = _command[2][0];
@@ -347,7 +349,8 @@ void command::TOPIC()
 	{
 		return display_reply(ERR_NEEDMOREPARAMS, "TOPIC");
 	}
-
+	if (_user->_mode.find('o') == std::string::npos && _user->_channels[_command[1]]->getMode('t') == 1)
+		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
 	for (std::map<std::string, channel *>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++)
 	{
 		if (it->second->getMode('t') && _user->_mode.find("o") == std::string::npos)
@@ -404,6 +407,8 @@ void command::KICK()
 {
 	if (_command.size() < 3)
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+	if (_user->_mode.find('o') == std::string::npos)
+		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
 	std::string str_channel = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " KICK " + _command[1] + " " + _command[2] + " ";
 	std::string str_user = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " PART " + _command[1] + "\r\n";
 	/*	KICK "channel" "USER"	*/
@@ -446,6 +451,8 @@ void command::INVITE()
 	{
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
 	}
+	if (_user->_mode.find('o') == std::string::npos)
+		return display_reply(ERR_CHANOPRIVSNEEDED, _command[2].c_str());
 
 	for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
 	{
