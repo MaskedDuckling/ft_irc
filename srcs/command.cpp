@@ -557,7 +557,7 @@ void command::KICK()
 					str_channel += "\r\n";
 					it2->second->broadcast(str_channel, _command[2]);
 					std::cout << str_user << std::endl;
-					send(it->second->_fd, str_user.c_str(), str_user.size(), 0); /*	Notifie l'user du kick	*/
+					send(it->second->_fd, str_channel.c_str(), str_channel.size(), 0); /*    Notifie l'user du kick    */
 
 
 					it2->second->delete_user(it->second->_nick); /*	Supprime l'user de la liste du channel	*/
