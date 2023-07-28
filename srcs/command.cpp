@@ -189,6 +189,7 @@ void command::JOIN()
 				display_reply(ERR_CHANNELISFULL, _command[1].c_str());
 				return;
 			}
+			std::cout << "_mode :" << it->second->_mode << std::endl;
 			if (it->second->getMode('k') == 1)
 			{
 				std::cout << "key : " << it->second->_key << std::endl;
@@ -398,52 +399,7 @@ void	command::MODE()
 	}
 }
 
-/*void command::MODE()
-{
-	std::string modes = "itkol";
-	int i = 0;
-
-	if (_command.size() < 3)
-		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-	if (_user->_mode.find('o') == std::string::npos)
-		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
-	if (_command[1] == _user->_nick)
-	{
-		char c = _command[2][0];
-		_command[2].erase(0, 1);
-		if (c == '+')
-			add_mode(_command[2].c_str());
-		else if (c == '-')
-			deleteUserMode(_command[2].c_str()[0]);
-		else
-			return display_reply(ERR_UMODEUNKNOWNFLAG);
-		return;
-	}
-
-
-	else if (_user->isUser(_command[1]) == 1)
-		return display_reply(ERR_USERSDONTMATCH);
-
-
-	else{
-		for (std::map<std::string, channel *>::iterator it =_user->_channels.begin(); it != _user->_channels.end() ;it++){
-			if (it->second->_name == _command[1]){
-				i = it->second->change_channel_mode(_command[2][0], _command[2][1], _command);
-				// std::cout << it->second->_mode << std::endl;
-				// std::string str = it->second->_mode;
-				if (i == 1)
-					return display_reply(RPL_CHANNELMODEIS, _command[1].c_str(),  it->second->_mode.c_str(), "");
-				break;	
-			}
-		}
-		if (i == -1)
-			return display_reply(ERR_UNKNOWNMODE, &_command[2][1], _command[1].c_str());
-		else if (i == 2)
-			return display_reply(ERR_KEYSET, _command[1].c_str());
-	}
-}
-
-*/int command::add_mode(std::string mode){
+int command::add_mode(std::string mode){
     std::string available_modes("aiwroOs");
     if (available_modes.find(mode) == std::string::npos)
         return 0;
@@ -483,14 +439,18 @@ void command::TOPIC()
 	{
 		return display_reply(ERR_NEEDMOREPARAMS, "TOPIC");
 	}
-	if (_user->_mode.find('o') == std::string::npos && _user->_channels[_command[1]]->getMode('t') == 1)
-		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
 	for (std::map<std::string, channel *>::iterator it = _user->_channels.begin(); it != _user->_channels.end(); it++)
 	{
-		if (it->second->getMode('t') && _user->_mode.find("o") == std::string::npos)
-			return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
 		if (_command[1] == it->second->_name)
 		{
+			if (it->second->getMode('k')==1)
+			{
+				if (_user->_mode.find('o') == std::string::npos && it->second->checkOper(_user->_nick) == 0)
+				{
+					display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
+					return ;
+				}
+			}
 			if (_command[2] == "" && it->second->_topic == "")
 				return display_reply(RPL_NOTOPIC, _command[1].c_str());
 			else if (_command[2] == "" && it->second->_topic != "")
