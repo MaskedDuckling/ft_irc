@@ -215,7 +215,10 @@ void command::JOIN()
 
 void command::join_reply()
 {
-	display_reply(RPL_TOPIC, _command[1].c_str(), _user->_channels[_command[1]]->_topic.c_str());
+	if (_user->_channels[_command[1]]->_topic != "")
+		display_reply(RPL_TOPIC, _command[1].c_str(), _user->_channels[_command[1]]->_topic.c_str());
+	else
+		display_reply(RPL_NOTOPIC, _command[1].c_str());
 }
 
 void command::PART()
@@ -451,10 +454,12 @@ void command::TOPIC()
 					return ;
 				}
 			}
-			if (_command[2] == "" && it->second->_topic == "")
-				return display_reply(RPL_NOTOPIC, _command[1].c_str());
-			else if (_command[2] == "" && it->second->_topic != "")
-				display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());
+			if (_command.size() == 2){
+				if (it->second->_topic == "")
+					return display_reply(RPL_NOTOPIC, _command[1].c_str());
+				else if (it->second->_topic != "")
+					display_reply(RPL_TOPIC, _command[1].c_str(), it->second->_topic.c_str());
+			}
 			else if (_command[2] == ":" && _command.size() == 3)
 			{
 				it->second->_topic = "";
@@ -474,7 +479,7 @@ void command::TOPIC()
 void command::display_topic()
 {
 	_command[2].erase(0, 1);
-	std::string reply = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " TOPIC " + _command[1];
+	std::string reply = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " TOPIC " + _command[1] + " ";
 	std::string str = "";
 	for (unsigned long i = 2; i < _command.size(); i++)
 	{
@@ -501,6 +506,8 @@ void command::KICK()
 {
 	if (_command.size() < 3)
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
+	if (_user->_channels.size() == 0)
+		return display_reply(ERR_NOTONCHANNEL, _command[1].c_str());	
 	if (_user->_mode.find('o') == std::string::npos && _user->_channels[_command[1]]->checkOper(_user->_nick) == 0)
 		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
 
