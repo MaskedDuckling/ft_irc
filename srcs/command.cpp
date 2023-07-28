@@ -501,10 +501,11 @@ void command::KICK()
 {
 	if (_command.size() < 3)
 		return display_reply(ERR_NEEDMOREPARAMS, _command[0].c_str());
-	if (_user->_mode.find('o') == std::string::npos)
+	if (_user->_mode.find('o') == std::string::npos && _user->_channels[_command[1]]->checkOper(_user->_nick) == 0)
 		return display_reply(ERR_CHANOPRIVSNEEDED, _command[1].c_str());
+
 	std::string str_channel = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " KICK " + _command[1] + " " + _command[2] + " ";
-	std::string str_user = ":" + _user->_nick + "!" + _user->_serv->_name + "@localhost" + " PART " + _command[1] + "\r\n";
+	std::string str_user = "";
 	/*	KICK "channel" "USER"	*/
 	for (std::map<int, user *>::iterator it = _user->_serv->_users.begin(); it != _user->_serv->_users.end(); it++)
 	{
@@ -516,14 +517,17 @@ void command::KICK()
 				{
 					for (unsigned long i = 3; i < _command.size(); i++)
 					{
+						if (_command[3] == ":")
+							break;
 						str_channel += _command[i];
 						if (i < _command.size() - 1)
 							str_channel += " ";
 					}
 					str_channel += "\r\n";
 					it2->second->broadcast(str_channel, _command[2]);
+					str_user = ":" + it->second->_nick + "!" + _user->_serv->_name + "@localhost" + " PART " + _command[1] + "\r\n";
 					std::cout << str_user << std::endl;
-					send(it->second->_fd, str_channel.c_str(), str_channel.size(), 0); /*    Notifie l'user du kick    */
+					send(it->second->_fd, str_user.c_str(), str_user.size(), 0); /*    Notifie l'user du kick    */
 
 
 					it2->second->delete_user(it->second->_nick); /*	Supprime l'user de la liste du channel	*/
