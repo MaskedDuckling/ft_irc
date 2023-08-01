@@ -73,16 +73,16 @@ void    serveur::addUser(){
 
 int serveur::delUser(std::vector<pollfd>::iterator it){
     _users[it->fd]->_commands.clear();
-    _pollfds.erase(it);
     close(it->fd);
     _users.erase(it->fd);
     _nbUser--;
+	_pollfds.erase(it);
     return 0;
 }
 
 int serveur::loop(){
     char buff[BUFF_SIZE];
-    size_t lu = 0;
+    ssize_t lu = 0;
     std::string message;
 
     poll(&_pollfds[0], _pollfds.size(), 500);
@@ -94,9 +94,9 @@ int serveur::loop(){
         {
             if (it->revents == POLLIN){
                 lu = recv(it->fd, buff, BUFF_SIZE, 0);
-                if (lu==0)
+				if (lu==0)
                     return delUser(it);
-                buff[lu] = '\0';
+				buff[lu] = '\0';
                 message = std::string(buff);
                 _users[it->fd]->parse_commands(message);
                 // std::cout << "Message from " << _users[it->fd]->_nick << " : " << message << std::endl;
